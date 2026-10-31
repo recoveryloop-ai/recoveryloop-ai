@@ -1,0 +1,16 @@
+digraph RefundSafety {
+ graph [rankdir=TB, bgcolor=white, pad=.22, nodesep=.25, ranksep=.4, fontname="DejaVu Sans"];
+ node [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=11, color="#B9CFDE", fillcolor="#F3F8FB", margin="0.2,0.12"];
+ edge [color="#637F96", arrowsize=.7];
+ p [label="Merchant approves proposal"];
+ q [label="Preflight: auth + fresh evidence + capture GET"];
+ d [label="Valid obligation / amount?", shape=diamond, fillcolor="#FFF2D4"];
+ bad [label="BLOCK + audit", fillcolor="#FBE3DF"];
+ reserve [label="DB lock, unique obligation reservation\nPersist stable PayPal-Request-Id", fillcolor="#DFF3EE"];
+ call [label="POST PayPal sandbox partial refund"];
+ got [label="Have confirmed refund ID/status?", shape=diamond, fillcolor="#FFF2D4"];
+ unknown [label="UNKNOWN: hold reservation\nReconcile, no new action", fillcolor="#FFF0DB"];
+ get [label="GET PayPal refund by ID"];
+ done [label="Verified COMPLETED -> allocate + certificate", fillcolor="#DFF3EE"];
+ p -> q -> d; d -> bad [label="No"]; d -> reserve [label="Yes"]; reserve -> call -> got; got -> unknown [label="No"]; got -> get [label="Yes"]; get -> done; get -> unknown;
+}

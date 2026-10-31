@@ -1,0 +1,32 @@
+{
+  "name": "recoveryloop-ai",
+  "version": "0.0.0",
+  "private": true,
+  "description": "RecoveryLoop AI S0 provider and environment readiness tooling",
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "env:init": "node scripts/init-local-env.mjs",
+    "smoke:all": "tsx scripts/smoke/all.ts",
+    "smoke:easypost": "tsx scripts/smoke/easypost.ts",
+    "smoke:openai": "tsx scripts/smoke/openai.ts",
+    "smoke:paypal": "tsx scripts/smoke/paypal.ts",
+    "smoke:supabase": "tsx scripts/smoke/supabase.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "18.0.9",
+    "openai": "7.47.0",
+    "postgres": "4.0.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5"
+  }
+}

@@ -1,0 +1,15 @@
+digraph RecoveryLoop {
+ graph [rankdir=TB, bgcolor=white, pad="0.22", nodesep=0.43, ranksep=0.58, fontname="DejaVu Sans", splines=ortho];
+ node [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=12, color="#BBD0E4", fillcolor="#F0F6FC", fontcolor="#17324C", penwidth=1.2, margin="0.19,0.12"];
+ edge [color="#6484A2", arrowsize=.75, penwidth=1.3];
+ {rank=same; store [label="Demo storefront\nOrder + policy"]; paypal [label="PayPal sandbox\nCapture / refund"]; easy [label="EasyPost test\nShipment events"];}
+ ingest [label="Provider adapters + verified event inbox\nAuth, signature checks, deduplication", fillcolor="#DCEBFA"];
+ data [label="PostgreSQL\nOrders | Items | Captures | Refunds\nObligations | Evidence | Audit", fillcolor="#E7F1F9"];
+ rules [label="Deterministic financial obligation engine\nReconcile - reserve - simulate - verify", fillcolor="#D7F4ED", color="#82C3B0"];
+ ai [label="AI investigator\nRead-only tools + cited conclusions", fillcolor="#FFF4DF", color="#E9BF6F"];
+ ui [label="RecoveryLoop Console\nCases | Recovery Map | Action Center | Demo Lab", fillcolor="#E3E7FC"];
+ approve [label="Authenticated human approval\nServer-side preflight and execution", fillcolor="#FCE5E3", color="#D8A3A1"];
+ store -> ingest; paypal -> ingest; easy -> ingest;
+ ingest -> data; data -> rules; data -> ai; rules -> ai; rules -> ui; ai -> ui;
+ ui -> approve; approve -> rules; approve -> paypal [label="verified refund", fontsize=9, fontcolor="#45637A"];
+}

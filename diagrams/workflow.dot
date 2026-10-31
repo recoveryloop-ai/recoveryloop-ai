@@ -1,0 +1,7 @@
+digraph Flow {
+ graph [rankdir=LR, bgcolor=white, pad=.2, nodesep=.24, ranksep=.5, fontname="DejaVu Sans"];
+ node [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=10, color="#B7C9D9", fillcolor="#F2F7FC", margin="0.15,0.1"];
+ edge [color="#66829C", arrowsize=.65];
+ a [label="Payment captured", fillcolor="#DFF2EA"]; b [label="Shipment event"]; c [label="Evidence matched"]; d [label="Obligation derived", fillcolor="#FFF0D5"]; e [label="AI investigation"]; f [label="Simulate remedy"]; g [label="Approve action"]; h [label="PayPal refund", fillcolor="#DFEDF8"]; i [label="Verify + audit", fillcolor="#DFF2EA"];
+ a -> c; b -> c; c -> d -> e -> f -> g -> h -> i;
+}

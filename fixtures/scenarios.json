@@ -1,0 +1,14 @@
+{
+  "meta": {"synthetic": true, "purpose": "Deterministic acceptance fixtures. Never claim real customer evidence.", "currency": "USD"},
+  "merchant_policy": {"version": "demo-v1", "return_to_sender_unreceived_item_refundable": true, "refund_excludes_delivered_items": true},
+  "order": {"id": "RG-2048", "total_minor": 25000, "items": [{"id": "A", "name": "Item A", "total_minor": 15000, "fulfillment": "delivered"}, {"id": "B", "name": "Item B", "total_minor": 10000, "fulfillment": "return_to_sender"}]},
+  "scenarios": [
+    {"id":"F01", "description":"All delivered", "capture_minor":25000, "delivered_items":["A","B"], "completed_refunds":[], "expected_refund_eligible_minor":0},
+    {"id":"F02", "description":"B returned, capture complete", "capture_minor":25000, "delivered_items":["A"], "return_to_sender_items":["B"], "completed_refunds":[], "expected_refund_eligible_minor":10000},
+    {"id":"F03", "description":"B already refunded", "capture_minor":25000, "delivered_items":["A"], "return_to_sender_items":["B"], "completed_refunds":[{"obligation_key":"RG-2048:B:RETURN_TO_SENDER", "amount_minor":10000}], "expected_additional_refund_minor":0, "expected_reason":"REFUND_ALREADY_SETTLED"},
+    {"id":"F04", "description":"B refund pending", "capture_minor":25000, "return_to_sender_items":["B"], "pending_refunds":[{"obligation_key":"RG-2048:B:RETURN_TO_SENDER", "amount_minor":10000}], "expected_additional_refund_minor":0, "expected_reason":"REFUND_RESERVED"},
+    {"id":"F06", "description":"Capture not completed", "capture_status":"PENDING", "return_to_sender_items":["B"], "expected_reason":"CAPTURE_NOT_COMPLETED"},
+    {"id":"F11", "description":"Contradictory delivery ZIP", "event_source_tier":"SYNTHETIC", "order_zip":"10001", "carrier_zip":"10011", "expected_reason":"EVIDENCE_CONTRADICTS_ADDRESS"},
+    {"id":"F12", "description":"AI invented evidence ID", "model_evidence_ids":["ev-nonexistent"], "expected_reason":"UNSUPPORTED_CITATION"}
+  ]
+}
