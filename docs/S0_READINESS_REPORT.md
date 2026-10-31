@@ -15,7 +15,7 @@ Sprint S0 only: repository/toolchain setup, local environment template, safe ser
 | EasyPost | Key not installed locally | Create test tracker `EZ5000000005` | BLOCKED | Not called | `EASYPOST_API_KEY` |
 | OpenAI | Key not installed locally | Strict read-only tool call + JSON-schema output | BLOCKED | Not called | `OPENAI_API_KEY`, `OPENAI_MODEL` |
 | Supabase | Connected account available | Project creation and DB read/write | PENDING | Connected organization discovered | Owner organization/region confirmation and project provisioning |
-| GitHub | Connected account available | Public repository creation/push | PENDING | Authenticated owner discovered | Local verification and initial push |
+| GitHub | Yes | Public repository creation/push | PASS | `Faheel101/recoveryloop-ai`, commit `a1714c1` | None |
 | Vercel | Not tested in S0 yet | Account/project deploy readiness | PENDING | Not called | GitHub repository must exist first |
 
 ## Security and financial invariants
@@ -27,6 +27,18 @@ Sprint S0 only: repository/toolchain setup, local environment template, safe ser
 - EasyPost smoke requires the returned tracker to report `mode=test`.
 - OpenAI smoke exposes only a synthetic read-only `lookup_case` function.
 - Supabase smoke uses a temporary table that is dropped on commit; it does not create the S1 application schema.
+
+## Commands and observed results
+
+| Command | Result |
+|---|---|
+| `npm install` | PASS — 46 packages installed; 0 audit vulnerabilities |
+| `npm run env:init` | PASS — `.env.local` created with mode `600`; demo signing secret generated |
+| `npm run typecheck` | PASS — TypeScript reported no errors |
+| `npm test` | PASS — 1 file, 3 tests |
+| `npm run smoke:all` | Expected BLOCKED — exact missing local variables reported; no provider calls attempted |
+| tracked secret-pattern scan | PASS — no OpenAI, EasyPost, Supabase, or GitHub secret patterns found |
+| GitHub repository create/push | PASS — public `Faheel101/recoveryloop-ai`, branch `main` |
 
 ## Gate
 
