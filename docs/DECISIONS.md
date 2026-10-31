@@ -25,7 +25,8 @@
 
 - [ ] Create PayPal Developer account and sandbox app, plus appropriate sandbox test users.
 - [ ] Create EasyPost account and obtain **test** API key.
-- [ ] Confirm Supabase project Postgres access and server-side Auth configuration.
+- [x] Create the dedicated Supabase project and confirm PostgreSQL read/write access.
+- [ ] Configure Supabase server-side Auth and the allowlisted operator during the authorized foundation sprint.
 - [ ] Confirm Z.ai standard API key, `glm-5.3` access, billing/limits.
 - [ ] Confirm Vercel project permissions and production domain hosting.
 

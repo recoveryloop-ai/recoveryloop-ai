@@ -11,7 +11,7 @@ Read in this order:
 
 ## Immediately next: Sprint S0 only
 
-**Owner action:** Create legitimate PayPal Developer/Sandbox account. EasyPost test and Z.ai keys are available for S0 verification; Supabase and Vercel still need project readiness verification. Never send keys in chat or commit `.env.local`.
+**Owner action:** Create legitimate PayPal Developer/Sandbox account. EasyPost test, Z.ai and Supabase readiness are verified; Vercel deployment waits for the application sprint. Never send keys in chat or commit `.env.local`.
 
 **Coding-agent S0 assignment:** Create repository skeleton, build safe server-only provider checks for PayPal OAuth and a permitted order API call, EasyPost test tracker and Z.ai GLM structured response/tool capability; verify Supabase DB connection. A mock PayPal adapter may support local development but never satisfies the real PayPal S0 gate. Report actual response status/IDs with secrets redacted. Do not fabricate a successful smoke test or proceed past S0 if PayPal is inaccessible.
 

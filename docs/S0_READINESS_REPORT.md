@@ -1,6 +1,6 @@
 # Sprint S0 — Provider and Environment Readiness
 
-**Status:** S0 implemented; exit gate BLOCKED by PayPal and Supabase provisioning
+**Status:** S0 implemented; exit gate BLOCKED by PayPal only
 **Date:** 1 November 2026 (Asia/Karachi)
 
 ## Scope
@@ -15,7 +15,7 @@ Sprint S0 only: repository/toolchain setup, local environment template, safe ser
 | PayPal mock | Local only | Provider-neutral create/read adapter | PASS (synthetic only) | 5 adapter/guard tests pass | Never counts as PayPal provider proof |
 | EasyPost | Yes, test key | Create test tracker `EZ5000000005` | PASS | Initial HTTP 201, idempotent rerun HTTP 200; redacted `trk_…2d4f`; `mode=test`; `status=return_to_sender`; USPS | None |
 | Z.ai | Yes, standard API key | GLM read-only function call + JSON-mode output | PASS | `glm-5.3`; tool call valid; Zod output valid; latest run 230 input / 34 output tokens; response IDs redacted | None observed |
-| Supabase | Connected account available | Create dedicated project, then DB read/write | BLOCKED | Organization and region verified; create request rejected before provisioning | Free-plan two-active-project limit; owner must pause a current project or upgrade |
+| Supabase | Yes | Dedicated project + DB read/write readiness | PASS | `RecoveryLoop AI` active in `ap-southeast-1`; PostgreSQL 17.11; temporary write/read returned 1 row; migration privilege true; advisors clear | Local `DATABASE_URL` and server secret still need owner-side retrieval before app runtime |
 | GitHub | Yes | Public repository creation/push | PASS | `Faheel101/recoveryloop-ai`, commit `a1714c1` | None |
 | Vercel | Not tested in this checkpoint | Account/project deploy readiness | PENDING | Not called | No Next.js application exists before S1 |
 
@@ -39,7 +39,7 @@ Sprint S0 only: repository/toolchain setup, local environment template, safe ser
 | `npm run lint` | PASS — ESLint reported no errors |
 | `npm run typecheck` | PASS — TypeScript reported no errors |
 | `npm test` | PASS — 3 files, 11 tests |
-| `npm run smoke:all` | PARTIAL — EasyPost PASS; Z.ai PASS; PayPal BLOCKED; Supabase BLOCKED |
+| `npm run smoke:all` | PARTIAL — EasyPost PASS; Z.ai PASS; PayPal BLOCKED; local Supabase script awaits `DATABASE_URL`; Supabase was independently verified through the connected management/SQL channel |
 | `npm audit` | PASS — 0 vulnerabilities after pinning the patched `minimatch` release |
 | tracked secret-pattern scan | PASS — no Z.ai, EasyPost, Supabase, PayPal, or GitHub secret patterns found |
 | GitHub repository create/push | PASS — public `Faheel101/recoveryloop-ai`, branch `main` |
@@ -49,7 +49,7 @@ Sprint S0 only: repository/toolchain setup, local environment template, safe ser
 
 - EasyPost `POST /v2/trackers`: HTTP 201; provider returned a test-mode return-to-sender tracker. This is provider test evidence, not real shipment proof.
 - Z.ai `POST /chat/completions`: two calls. The first returned a valid `lookup_case` function call; the second returned JSON accepted by the exact Zod schema. No payment or unrestricted external tool was available to the model.
-- Supabase project creation: management request rejected because the organization already has two active free projects. No database or application schema was created.
+- Supabase: `Order Analytics` was paused by explicit owner request and verified `INACTIVE`. `RecoveryLoop AI` was created and verified `ACTIVE_HEALTHY`. A temporary table accepted one insert/read and dropped automatically; `public` remains empty, no application schema or migration was created, and security/performance advisors returned no findings.
 - PayPal: no network call. The local mock is synthetic and cannot be represented as PayPal sandbox evidence.
 
 ## Files changed in this checkpoint
@@ -63,7 +63,7 @@ Sprint S0 only: repository/toolchain setup, local environment template, safe ser
 ## Blockers and next recommendation
 
 1. Add legitimate PayPal sandbox credentials locally and rerun `npm run smoke:paypal`; until OAuth and the real sandbox order call pass, S0 remains failed and S1 is unauthorized.
-2. Resolve the Supabase two-active-project limit by pausing an existing project or upgrading, then create `RecoveryLoop AI` in `ap-southeast-1` and run the temporary read/write probe.
+2. Retrieve the RecoveryLoop database connection string and server secret directly into `.env.local` before S1 runtime work; do not send either through chat. The project URL and publishable key are already configured locally.
 3. Rotate both credentials that were pasted into chat before any public deployment, even though EasyPost is test mode.
 
 ## Gate
