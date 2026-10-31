@@ -1,9 +1,9 @@
-# OpenAI AI Investigator — Tool and Evidence Contract v1.0
+# Z.ai GLM AI Investigator — Tool and Evidence Contract v1.1
 
 ## Goal
 Provide evidence-grounded explanations and candidate resolutions for financial incident cases; do not calculate authorized refund amounts or execute financial actions.
 
-**Backend:** OpenAI API; model selected/configured in `OPENAI_MODEL` after S0 compatibility smoke test. Use supported structured outputs/tool calling (Responses API or current documented equivalent). All API calls server-side with rate and token limits. Never expose `OPENAI_API_KEY` in client.
+**Backend:** Z.ai standard Model API; `glm-5.3` configured in `ZAI_MODEL` after S0 compatibility smoke test. Use its OpenAI-compatible Chat Completions protocol with function calling and JSON mode, followed by strict application-side Zod validation. All API calls are server-side with rate and token limits. Never expose `ZAI_API_KEY` in client.
 
 ## Read-only tool roster
 - `get_order(order_id)`
@@ -42,9 +42,9 @@ Provide evidence-grounded explanations and candidate resolutions for financial i
 - Numeric payout amounts are computed and authorized **only** by the deterministic engine.
 - The model must distinguish provider-verified sandbox records, provider test tracker events and synthetic fixtures.
 - An AI response cannot transition a proposal to `APPROVED` or an action to `EXECUTING`.
-- OpenAI error, invalid schema, unsupported citation or budget exhaustion -> durable rules-only fallback with visible label.
+- Z.ai error, invalid schema, unsupported citation or budget exhaustion -> durable rules-only fallback with visible label.
 
 ## Evaluation tests
 T1 valid returned item; T2 completed refund; T3 pending refund; T4 stale snapshot; T5 malicious shipment note; T6 fabricated evidence ID; T7 contradictory proof; T8 unknown carrier liability. Capture tests with exact input fixture, expected reason code, output validity, and no forbidden write. Provide real test report; never invent accuracy metrics.
 
-Official docs: https://platform.openai.com/docs/guides/function-calling and https://platform.openai.com/docs/guides/structured-outputs
+Official docs: https://docs.z.ai/guides/capabilities/function-calling and https://docs.z.ai/guides/capabilities/struct-output

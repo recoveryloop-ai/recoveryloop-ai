@@ -19,12 +19,12 @@ Official: https://developer.paypal.com/api/make-api-requests/ | https://develope
 
 Official: https://docs.easypost.com/docs/trackers | https://docs.easypost.com/docs/webhooks
 
-## 3. OpenAI API
-- Create/select API project, generate key, confirm quota/billing.
-- Choose a model actually accessible to the key that supports tools/structured outputs; store ID as `OPENAI_MODEL`.
+## 3. Z.ai GLM API
+- Create/select a Z.ai standard API project, generate key, confirm quota/billing.
+- Verify `glm-5.3` supports function calls and JSON-mode output; store ID as `ZAI_MODEL`.
 - Run a small server-only structured-output and tool-call smoke test, log token usage where available, and set spending/request limits.
 
-Official: https://platform.openai.com/docs/guides/function-calling
+Official: https://docs.z.ai/guides/overview/quick-start | https://docs.z.ai/guides/capabilities/function-calling | https://docs.z.ai/guides/capabilities/struct-output
 
 ## 4. Supabase
 - Use existing project: obtain server DB connection string, publishable client key, service role key server-only.
@@ -44,7 +44,7 @@ Official: https://vercel.com/docs/deployment-protection
 |---|---|---|---|---|---|
 | PayPal | | | | | |
 | EasyPost | | | | | |
-| OpenAI | | | | | |
+| Z.ai | | | | | |
 | Supabase | | | | | |
 | Vercel | | | | | |
 

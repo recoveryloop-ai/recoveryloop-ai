@@ -1,6 +1,6 @@
 # START HERE — RecoveryLoop AI v1.0
 
-**Approved product:** RecoveryLoop AI / ResolutionGraph engine, one USD electronics/accessories merchant, OpenAI API, PayPal sandbox and EasyPost test mode, a **public interactive Vercel demo**, protected operator refund actions.
+**Approved product:** RecoveryLoop AI / ResolutionGraph engine, one USD electronics/accessories merchant, Z.ai GLM API, PayPal sandbox and EasyPost test mode, a **public interactive Vercel demo**, protected operator refund actions.
 
 Read in this order:
 1. `AGENTS.md` — safety and coding requirements.
@@ -11,9 +11,9 @@ Read in this order:
 
 ## Immediately next: Sprint S0 only
 
-**Owner action:** Create legitimate PayPal Developer/Sandbox and EasyPost test accounts. Supabase, Vercel, OpenAI chosen/available but still need API verification. Never send keys in chat or commit `.env.local`.
+**Owner action:** Create legitimate PayPal Developer/Sandbox account. EasyPost test and Z.ai keys are available for S0 verification; Supabase and Vercel still need project readiness verification. Never send keys in chat or commit `.env.local`.
 
-**Coding-agent S0 assignment:** Create repository skeleton, build safe server-only provider checks for PayPal OAuth and a permitted order API call, EasyPost test tracker and OpenAI structured response/tool capability; verify Supabase DB connection. Report actual response status/IDs with secrets redacted. Do not fabricate a successful smoke test or proceed past S0 if PayPal is inaccessible.
+**Coding-agent S0 assignment:** Create repository skeleton, build safe server-only provider checks for PayPal OAuth and a permitted order API call, EasyPost test tracker and Z.ai GLM structured response/tool capability; verify Supabase DB connection. A mock PayPal adapter may support local development but never satisfies the real PayPal S0 gate. Report actual response status/IDs with secrets redacted. Do not fabricate a successful smoke test or proceed past S0 if PayPal is inaccessible.
 
 ## What judges can do
 
@@ -25,4 +25,4 @@ Official close as documented in blueprint: 13 November 2026 at 01:00 PKT; intern
 
 ## First Codex prompt
 
-> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially sections 6, 9, 12, 17 and 18), and docs/PROVIDER_SETUP.md. Execute Sprint S0 ONLY. Do not start product UI or falsely claim external API proof. Create safe `.env.example`, provider smoke-test scripts and a redacted S0 report. Verify actual PayPal sandbox/OAuth, EasyPost test tracker, OpenAI API and Supabase access where keys are provided. If the owner has not provisioned PayPal or EasyPost credentials, report the exact blocking input, not a fake PASS. Summarize changed files, commands, observed responses, tests and blockers.
+> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially sections 6, 9, 12, 17 and 18), and docs/PROVIDER_SETUP.md. Execute Sprint S0 ONLY. Do not start product UI or falsely claim external API proof. Create safe `.env.example`, provider smoke-test scripts and a redacted S0 report. Verify actual PayPal sandbox/OAuth, EasyPost test tracker, Z.ai GLM API and Supabase access where keys are provided. If the owner has not provisioned PayPal credentials, report the exact blocking input, not a fake PASS. Summarize changed files, commands, observed responses, tests and blockers.

@@ -11,6 +11,8 @@
 
 > **Approved on 31 October 2026.** The owner has approved the RecoveryLoop AI name, electronics/accessories demo vertical, USD and one merchant, OpenAI API, and an interactive public Vercel demo. The owner will provision PayPal Developer/Sandbox and EasyPost; Supabase, Vercel and AI-provider access are already available. These are approved implementation decisions, not proof that external API access has been tested. This remains a sandbox-only prototype, not a production financial service.
 
+> **Owner override, 1 November 2026:** ADR-015 supersedes OpenAI with the Z.ai standard Model API and `glm-5.3`. In this v1.0 blueprint, legacy references to “OpenAI” mean the provider-neutral AI investigator contract now implemented with Z.ai GLM. All read-only tool, evidence validation, deterministic-money, budget, fallback and server-only secret constraints remain unchanged. ADR-016 permits an explicitly synthetic mock PayPal adapter for development; it does not satisfy the real PayPal sandbox gates.
+
 ### Document navigation
 
 - **Strategy and decisions:** Sections 1-2 - problem, differentiators, competition requirements and owner approvals.

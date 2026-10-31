@@ -9,9 +9,10 @@
   },
   "scripts": {
     "env:init": "node scripts/init-local-env.mjs",
+    "lint": "eslint .",
     "smoke:all": "tsx scripts/smoke/all.ts",
     "smoke:easypost": "tsx scripts/smoke/easypost.ts",
-    "smoke:openai": "tsx scripts/smoke/openai.ts",
+    "smoke:zai": "tsx scripts/smoke/zai.ts",
     "smoke:paypal": "tsx scripts/smoke/paypal.ts",
     "smoke:supabase": "tsx scripts/smoke/supabase.ts",
     "test": "vitest run",
@@ -24,9 +25,16 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
     "@types/node": "26.6.6",
+    "eslint": "10.14.0",
+    "globals": "17.13.0",
     "tsx": "4.23.15",
-    "typescript": "7.0.2",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
     "vitest": "5.0.5"
+  },
+  "overrides": {
+    "minimatch": "11.0.1"
   }
 }

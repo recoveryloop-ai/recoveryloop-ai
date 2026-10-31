@@ -4,7 +4,7 @@
 
 **Product:** AI merchant financial incident resolution with a Financial Obligation Graph, counterfactual resolution simulation, merchant-approved PayPal sandbox refund, verified receipt and isolated public evidence challenge.
 
-**Owner-approved configuration:** RecoveryLoop AI brand; electronics merchant; USD-only; OpenAI API; PayPal sandbox and EasyPost test accounts will be provisioned; Supabase/Vercel/OpenAI available; public working Vercel judge demo with protected operator actions.
+**Owner-approved configuration:** RecoveryLoop AI brand; electronics merchant; USD-only; Z.ai GLM API; PayPal sandbox and EasyPost test mode; Supabase/Vercel available; public working Vercel judge demo with protected operator actions.
 
 ## Read first
 - `START_HERE.md` / `AGENTS.md` — execution and safety
@@ -33,17 +33,18 @@ Run each provider check independently:
 
 ```bash
 npm run smoke:easypost
-npm run smoke:openai
+npm run smoke:zai
 npm run smoke:supabase
 npm run smoke:paypal
 ```
 
-`smoke:paypal` is intentionally blocked until legitimate PayPal sandbox credentials are present. It refuses live PayPal whenever `DEMO_MODE=true` and creates only an unapproved, uncaptured USD 1.00 sandbox order after OAuth succeeds.
+`smoke:paypal` is intentionally blocked until legitimate PayPal sandbox credentials are present. It refuses live PayPal whenever `DEMO_MODE=true` and creates only an unapproved, uncaptured USD 1.00 sandbox order after OAuth succeeds. The local mock adapter is always labeled `SYNTHETIC`; it is useful for development but cannot satisfy the S0 PayPal gate.
 
 Run local verification:
 
 ```bash
 npm run typecheck
+npm run lint
 npm test
 ```
 

@@ -1,11 +1,11 @@
 import { smokeEasyPost } from "./easypost.js";
-import { smokeOpenAI } from "./openai.js";
 import { smokePayPal } from "./paypal.js";
 import { smokeSupabase } from "./supabase.js";
+import { smokeZai } from "./zai.js";
 
 const results = [];
 
-for (const check of [smokePayPal, smokeEasyPost, smokeOpenAI, smokeSupabase]) {
+for (const check of [smokePayPal, smokeEasyPost, smokeZai, smokeSupabase]) {
   results.push(await check());
 }
 
