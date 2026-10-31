@@ -43,6 +43,7 @@ Sprint S0 only: repository/toolchain setup, local environment template, safe ser
 | `npm audit` | PASS — 0 vulnerabilities after pinning the patched `minimatch` release |
 | tracked secret-pattern scan | PASS — no Z.ai, EasyPost, Supabase, PayPal, or GitHub secret patterns found |
 | GitHub repository create/push | PASS — public `Faheel101/recoveryloop-ai`, branch `main` |
+| GitHub Actions CI | PASS — clean install, lint, typecheck and 11 tests on `ubuntu-latest` |
 
 ## Actual external calls
 
