@@ -1,9 +1,10 @@
-import { parseBaseEnvironment } from "../../config/runtime-env.js";
-import { MockPayPalProvider } from "./mock-paypal-provider.js";
-import type { PaymentProvider } from "./payment-provider.js";
+import { parseBaseEnvironment, type EnvironmentInput } from "../../config/runtime-env";
+import { MockPayPalProvider } from "./mock-paypal-provider";
+import { PayPalSandboxProvider } from "./paypal-sandbox-provider";
+import type { PaymentProvider } from "./payment-provider";
 
 export function createPaymentProvider(
-  environment: NodeJS.ProcessEnv,
+  environment: EnvironmentInput,
 ): PaymentProvider {
   const base = parseBaseEnvironment(environment);
   const provider = environment.PAYPAL_PROVIDER ?? "mock";
@@ -16,8 +17,19 @@ export function createPaymentProvider(
   }
 
   if (provider === "sandbox") {
-    throw new Error("PAYPAL_SANDBOX_ADAPTER_NOT_CONFIGURED");
+    return new PayPalSandboxProvider({
+      clientId: environment.PAYPAL_CLIENT_ID ?? "",
+      clientSecret: environment.PAYPAL_CLIENT_SECRET ?? "",
+    });
   }
 
   throw new Error("UNKNOWN_PAYPAL_PROVIDER");
+}
+
+let cachedSandboxProvider: PaymentProvider | null = null;
+
+export function getPaymentProvider(environment: EnvironmentInput): PaymentProvider {
+  if ((environment.PAYPAL_PROVIDER ?? "mock") !== "sandbox") return createPaymentProvider(environment);
+  cachedSandboxProvider ??= createPaymentProvider(environment);
+  return cachedSandboxProvider;
 }

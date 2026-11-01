@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793522932723,
+      "tag": "0000_sparkling_gargoyle",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793523079068,
+      "tag": "0001_pink_the_renegades",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793523669725,
+      "tag": "0002_lush_lorna_dane",
+      "breakpoints": true
+    }
+  ]
+}

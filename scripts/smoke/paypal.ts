@@ -68,15 +68,34 @@ export async function smokePayPal(): Promise<SmokeResult> {
     if (!orderResponse.ok) throw new Error(`ORDER_HTTP_${orderResponse.status}`);
     const order = orderSchema.parse(orderPayload);
 
+    const readResponse = await fetch(
+      `${baseUrl}/v2/checkout/orders/${encodeURIComponent(order.id)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token.access_token}`,
+          "Content-Type": "application/json",
+        },
+        signal: AbortSignal.timeout(15_000),
+      },
+    );
+    const readPayload: unknown = await readResponse.json();
+    if (!readResponse.ok) throw new Error(`ORDER_READ_HTTP_${readResponse.status}`);
+    const readOrder = orderSchema.parse(readPayload);
+
+    if (readOrder.id !== order.id || readOrder.status !== order.status) {
+      throw new Error("ORDER_READ_BACK_MISMATCH");
+    }
+
     return {
       provider: "PayPal",
       status: "PASS",
-      capability: "Sandbox OAuth and create-order call without capture",
+      capability: "Sandbox OAuth and create/read order calls without capture",
       evidence: {
         oauth_status: tokenResponse.status,
         order_status_code: orderResponse.status,
+        order_read_status_code: readResponse.status,
         order_id: redactIdentifier(order.id),
-        order_status: order.status,
+        order_status: readOrder.status,
         token_type: token.token_type,
         token_expires_in_seconds: token.expires_in,
       },
@@ -86,7 +105,7 @@ export async function smokePayPal(): Promise<SmokeResult> {
     return {
       provider: "PayPal",
       status: message.startsWith("MISSING_ENV:") ? "BLOCKED" : "FAIL",
-      capability: "Sandbox OAuth and create-order call without capture",
+      capability: "Sandbox OAuth and create/read order calls without capture",
       blocker: message,
     };
   }

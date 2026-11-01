@@ -1,11 +1,28 @@
 export type PaymentSourceTier = "PROVIDER_VERIFIED" | "SYNTHETIC";
-export type PaymentOrderStatus = "CREATED" | "COMPLETED" | "UNKNOWN";
+export type PaymentOrderStatus =
+  | "CREATED"
+  | "APPROVED"
+  | "COMPLETED"
+  | "VOIDED"
+  | "PAYER_ACTION_REQUIRED"
+  | "UNKNOWN";
+export type PaymentCaptureStatus = "COMPLETED" | "PENDING" | "DECLINED" | "DENIED" | "UNKNOWN";
+
+export type PaymentLineItem = {
+  name: string;
+  sku: string;
+  quantity: number;
+  unitMinor: number;
+};
 
 export type CreatePaymentOrderInput = {
   requestId: string;
   localOrderId: string;
   amountMinor: number;
   currency: "USD";
+  items?: readonly PaymentLineItem[];
+  returnUrl?: string;
+  cancelUrl?: string;
 };
 
 export type PaymentOrder = {
@@ -16,6 +33,34 @@ export type PaymentOrder = {
   status: PaymentOrderStatus;
   sourceTier: PaymentSourceTier;
   synthetic: boolean;
+  approvalUrl: string | null;
+  providerCreatedAt: string | null;
+};
+
+export type CapturePaymentOrderInput = {
+  requestId: string;
+  providerOrderId: string;
+};
+
+export type PaymentCapture = {
+  providerCaptureId: string;
+  providerOrderId: string;
+  amountMinor: number;
+  currency: "USD";
+  status: PaymentCaptureStatus;
+  sourceTier: PaymentSourceTier;
+  synthetic: boolean;
+  verifiedAt: string | null;
+};
+
+export type VerifyPayPalWebhookInput = {
+  transmissionId: string;
+  transmissionTime: string;
+  transmissionSignature: string;
+  certificateUrl: string;
+  authenticationAlgorithm: string;
+  webhookId: string;
+  event: unknown;
 };
 
 export interface PaymentProvider {
@@ -23,4 +68,7 @@ export interface PaymentProvider {
   readonly implementation: "mock" | "sandbox";
   createOrder(input: CreatePaymentOrderInput): Promise<PaymentOrder>;
   getOrder(providerOrderId: string): Promise<PaymentOrder | null>;
+  captureOrder(input: CapturePaymentOrderInput): Promise<PaymentCapture>;
+  getCapture(providerCaptureId: string): Promise<PaymentCapture | null>;
+  verifyWebhook(input: VerifyPayPalWebhookInput): Promise<boolean>;
 }

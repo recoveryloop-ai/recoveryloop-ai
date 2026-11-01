@@ -6,4 +6,6 @@ node_modules
 coverage
 .DS_Store
 *.log
+*.tsbuildinfo
 .s0-smoke-output.json
+.s2-checkout-state.json

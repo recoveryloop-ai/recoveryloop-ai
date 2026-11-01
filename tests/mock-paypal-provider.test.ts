@@ -62,13 +62,13 @@ describe("mock PayPal provider", () => {
     ).toThrow("PAYPAL_LIVE_FORBIDDEN_IN_DEMO_MODE");
   });
 
-  it("fails closed when the real sandbox adapter is requested early", () => {
+  it("fails closed when sandbox credentials are absent", () => {
     expect(() =>
       createPaymentProvider({
         DEMO_MODE: "true",
         PAYPAL_ENV: "sandbox",
         PAYPAL_PROVIDER: "sandbox",
       }),
-    ).toThrow("PAYPAL_SANDBOX_ADAPTER_NOT_CONFIGURED");
+    ).toThrow("PAYPAL_CREDENTIALS_REQUIRED");
   });
 });

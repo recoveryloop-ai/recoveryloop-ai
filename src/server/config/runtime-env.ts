@@ -8,6 +8,7 @@ export const baseEnvironmentSchema = z.object({
 });
 
 export type BaseEnvironment = z.infer<typeof baseEnvironmentSchema>;
+export type EnvironmentInput = Record<string, string | undefined>;
 
 export function assertPayPalSandbox(environment: BaseEnvironment): void {
   if (environment.DEMO_MODE === "true" && environment.PAYPAL_ENV !== "sandbox") {
@@ -16,7 +17,7 @@ export function assertPayPalSandbox(environment: BaseEnvironment): void {
 }
 
 export function parseBaseEnvironment(
-  environment: NodeJS.ProcessEnv,
+  environment: EnvironmentInput,
 ): BaseEnvironment {
   const parsed = baseEnvironmentSchema.parse(environment);
   assertPayPalSandbox(parsed);
