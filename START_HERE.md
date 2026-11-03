@@ -9,11 +9,11 @@ Read in this order:
 4. `docs/JUDGE_DEMO_CONTRACT.md`, `docs/OPENAI_AGENT_CONTRACT.md`, `docs/PROVIDER_SETUP.md` — implementation specifics.
 5. `docs/SPRINT_EXECUTION.md` — checkpoint schedule and code-agent instructions.
 
-## Immediately next: Sprint S5 only (requires owner approval)
+## Immediately next: Sprint S6 only (requires owner approval)
 
-**Checkpoint:** S0 through S4 and the pre-S4 deployment-hardening checkpoint are complete. The public production app is live at `https://recoveryloop-ai.vercel.app`. A real PayPal sandbox `$250.00` capture remains independently verified and unchanged. EasyPost test evidence is normalized and replay-safe. The deterministic S4 engine derives a `$100.00` F02 obligation, blocks F03 as already settled, blocks F04 as reserved/unknown, preserves independent F05 eligibility, and exposes a side-effect-free simulator with evidence-backed graph edges. Never send keys in chat or commit `.env.local`.
+**Checkpoint:** S0 through S5 and the pre-S4 deployment-hardening checkpoint are complete. The public production app is live at `https://recoveryloop-ai.vercel.app`. A real PayPal sandbox `$250.00` capture remains independently verified and unchanged. S4 remains the sole financial authority. The S5 Z.ai GLM 5.3 investigator uses eight scoped read-only tools, strict output validation, stored-evidence citation checks, prompt-injection redaction and a durable rules-only fallback. F02 has a validated two-citation narrative; no model or public route can execute provider writes. Never send keys in chat or commit `.env.local`.
 
-**Coding-agent S5 assignment (only after owner approval):** Implement the Z.ai GLM investigator with read-only, allowlisted tools, strict structured output and server-validated evidence citations. The model may explain findings but never calculate, authorize or execute money. Preserve the verified provider evidence, payment ledger and deterministic S4 financial outputs. Do not begin S6 behavior.
+**Coding-agent S6 assignment (only after owner approval):** Implement authenticated proposal approval, exact S4-derived refund reservation, stable idempotency, PayPal sandbox partial-refund execution, provider GET read-back, UNKNOWN reconciliation and the minimum durable certificate. Preserve the verified capture and all S5 evidence/AI boundaries. Do not begin S7 behavior.
 
 ## What judges can do
 
@@ -25,4 +25,4 @@ Official close as documented in blueprint: 13 November 2026 at 01:00 PKT; intern
 
 ## Next Codex prompt
 
-> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially S5 and sections 7, 8, 9, 12, 17 and 18), and all completed sprint reports. Execute Sprint S5 ONLY after explicit owner approval. Use Z.ai GLM 5.3 behind the provider-neutral adapter with read-only allowlisted tools, strict schema validation and evidence-ID citation enforcement. The model has no authority over money. Do not begin S6 without owner approval.
+> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially S6 and sections 5, 6, 8, 9, 12, 17 and 18), and all completed sprint reports. Execute Sprint S6 ONLY after explicit owner approval. Bind authenticated approval to an immutable evidence/policy snapshot, reserve the exact deterministic amount under lock, execute only PayPal sandbox with stable idempotency, verify by provider GET and fail closed on unknown outcomes. Do not begin S7 without owner approval.

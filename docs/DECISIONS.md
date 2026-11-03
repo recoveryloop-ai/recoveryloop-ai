@@ -21,6 +21,7 @@
 | ADR-015 | Z.ai standard Model API with `glm-5.3`, behind a provider-neutral AI adapter | ACCEPTED | Owner-approved 1 November 2026; same read-only tool, evidence, structured-output, budget and no-money-authority rules as ADR-008 |
 | ADR-016 | Mock PayPal adapter permitted before credentials, always labeled `SYNTHETIC` and never accepted as provider proof | ACCEPTED, TEMPORARY | Owner-approved for S0 development; real PayPal sandbox OAuth/order remains the S0 exit gate and replacement condition |
 | ADR-017 | Deterministic versioned-policy engine is the sole authority for obligation amounts; simulations are provider-write-free | ACCEPTED, S4 VERIFIED | Integer-cent F01-F07/F11/F14 fixtures pass; F02 allows `$100.00`, F03/F04 block, every persisted graph edge cites evidence |
+| ADR-018 | Z.ai GLM 5.3 investigator is explanatory only, with eight scoped read-only tools, strict schema/citation validation and durable rules fallback | ACCEPTED, S5 VERIFIED | Real F02 run cites two stored records; prompt injection, fabricated citations, stale input, unavailable AI and forbidden write-tool attempts are tested and fail closed |
 
 ## Owner provisioning items
 

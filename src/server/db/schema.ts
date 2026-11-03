@@ -296,6 +296,29 @@ export const graphEdges = pgTable("graph_edges", {
   check("graph_edges_relation_valid", sql`${table.relation} in ('HAS_ITEM', 'PAID_BY', 'PACKED_IN', 'REPORTED_AS', 'SUBJECT_TO', 'SATISFIES')`),
 ]);
 
+export const investigations = pgTable("investigations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  caseId: uuid("case_id").notNull().references(() => cases.id, { onDelete: "restrict" }),
+  model: varchar("model", { length: 64 }).notNull(),
+  promptVersion: varchar("prompt_version", { length: 32 }).notNull(),
+  evidenceHash: varchar("evidence_hash", { length: 64 }).notNull(),
+  inputHash: varchar("input_hash", { length: 64 }).notNull(),
+  status: varchar("status", { length: 16 }).notNull(),
+  validationCode: varchar("validation_code", { length: 64 }).notNull(),
+  outputJson: jsonb("output_json").notNull(),
+  toolLog: jsonb("tool_log").notNull(),
+  providerResponseHash: varchar("provider_response_hash", { length: 64 }),
+  promptTokens: integer("prompt_tokens").notNull().default(0),
+  completionTokens: integer("completion_tokens").notNull().default(0),
+  createdAt,
+}, (table) => [
+  index("investigations_case_created_idx").on(table.caseId, table.createdAt),
+  index("investigations_evidence_hash_idx").on(table.evidenceHash),
+  check("investigations_status_valid", sql`${table.status} in ('VALIDATED', 'FALLBACK')`),
+  check("investigations_hashes_valid", sql`length(${table.evidenceHash}) = 64 and length(${table.inputHash}) = 64 and (${table.providerResponseHash} is null or length(${table.providerResponseHash}) = 64)`),
+  check("investigations_tokens_nonnegative", sql`${table.promptTokens} >= 0 and ${table.completionTokens} >= 0`),
+]);
+
 export const auditEvents = pgTable("audit_events", {
   id: uuid("id").primaryKey().defaultRandom(),
   merchantId: uuid("merchant_id").notNull().references(() => merchants.id, { onDelete: "restrict" }),

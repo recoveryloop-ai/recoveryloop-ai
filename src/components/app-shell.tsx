@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 
 const navigation = [
   { href: "/app", label: "Command center", marker: "01" },
-  { href: "/store", label: "Demo store", marker: "02" },
+  { href: "/app/cases/RG-2048", active: "/app/cases", label: "Investigation", marker: "02" },
+  { href: "/store", label: "Demo store", marker: "03" },
 ] as const;
 
 export function AppShell({ children, active }: { readonly children: ReactNode; readonly active: string }) {
@@ -17,14 +18,14 @@ export function AppShell({ children, active }: { readonly children: ReactNode; r
         <nav className="side-nav" aria-label="Primary navigation">
           <p className="eyebrow">Workspace</p>
           {navigation.map((item) => (
-            <Link className={active === item.href ? "nav-link active" : "nav-link"} href={item.href} key={item.href}>
+            <Link className={active === ("active" in item ? item.active : item.href) ? "nav-link active" : "nav-link"} href={item.href} key={item.href}>
               <span>{item.marker}</span>{item.label}
             </Link>
           ))}
         </nav>
         <div className="sidebar-note">
           <span className="pulse-dot" aria-hidden="true" />
-          <div><strong>S3 verified</strong><small>Provider test + sandbox data</small></div>
+          <div><strong>S5 investigator</strong><small>Read-only tools · cited evidence</small></div>
         </div>
       </aside>
       <main className="workspace">{children}</main>

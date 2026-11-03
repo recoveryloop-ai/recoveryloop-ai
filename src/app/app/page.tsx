@@ -30,7 +30,7 @@ export default function CommandCenterPage() {
             <article className="scenario-row" key={fixture.id}>
               <span className="fixture-id">{fixture.id}</span>
               <div><strong>{fixture.label}</strong><small>{fixture.state} · {fixture.source}</small></div>
-              <span className={fixture.amount ? "amount attention" : "amount"}>{fixture.amount ? formatMoney(money(fixture.amount)) : "No action"}</span>
+              {fixture.id === "F02" ? <Link className="amount attention" href="/app/cases/RG-2048">Open case →</Link> : <span className={fixture.amount ? "amount attention" : "amount"}>{fixture.amount ? formatMoney(money(fixture.amount)) : "No action"}</span>}
             </article>
           ))}
         </div>

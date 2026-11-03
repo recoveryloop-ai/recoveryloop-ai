@@ -67,3 +67,25 @@ test("S4 simulator is deterministic and cannot write to a provider", async ({ re
     simulation: { newRefundMinor: 0, safeguardResult: "BLOCK" },
   });
 });
+
+test("S5 case narrative exposes validated citations and deterministic authority", async ({ page }, testInfo) => {
+  test.skip(!process.env.DATABASE_URL, "The public CI job intentionally has no database credential.");
+  const response = await page.goto("/app/cases/RG-2048");
+  expect(response?.status()).toBe(200);
+  await expect(page.getByRole("heading", { name: "Investigation" })).toBeVisible();
+  await expect(page.getByText("Z.ai validated", { exact: true })).toBeVisible();
+  await expect(page.getByText("No provider writes", { exact: false })).toBeVisible();
+  await expect(page.getByText("$100.00 simulated policy amount", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Cited evidence" })).toBeVisible();
+  expect(await page.locator(".evidence-drawer details").count()).toBeGreaterThanOrEqual(2);
+  await page.screenshot({ path: testInfo.outputPath("s5-investigation.png"), fullPage: true });
+});
+
+test("anonymous visitors cannot spend AI quota", async ({ request }) => {
+  const response = await request.post("/api/cases/RG-2048/investigate", {
+    data: { mode: "ai" },
+    headers: { origin: "http://127.0.0.1:4173" },
+  });
+  expect(response.status()).toBe(401);
+  await expect(response.json()).resolves.toMatchObject({ code: "AUTHENTICATION_REQUIRED", retryable: false });
+});

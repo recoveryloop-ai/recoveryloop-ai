@@ -57,9 +57,9 @@ try {
     from pg_tables where schemaname = 'public' and tablename <> '__drizzle_migrations'
     order by tablename`;
   const expectedTables = [
-    "audit_events", "captures", "cases", "evidence", "graph_edges", "merchants", "obligation_allocations",
-    "obligations", "order_items", "orders", "paypal_orders", "policy_versions", "refunds", "shipment_events",
-    "shipment_items", "shipments", "users", "webhook_inbox",
+    "audit_events", "captures", "cases", "evidence", "graph_edges", "investigations", "merchants",
+    "obligation_allocations", "obligations", "order_items", "orders", "paypal_orders", "policy_versions",
+    "refunds", "shipment_events", "shipment_items", "shipments", "users", "webhook_inbox",
   ];
   if (
     tables.map((table) => table.tablename).join(",") !== expectedTables.join(",") ||

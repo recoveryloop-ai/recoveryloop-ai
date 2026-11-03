@@ -88,6 +88,7 @@ try {
     await client.begin(async (sql) => {
       await sql`update obligations set case_id = null where case_id = ${caseRecord.id}`;
       await sql`delete from graph_edges where case_id = ${caseRecord.id}`;
+      await sql`delete from investigations where case_id = ${caseRecord.id}`;
       await sql`delete from audit_events where case_id = ${caseRecord.id}`;
       await sql`delete from evidence where case_id = ${caseRecord.id}`;
       await sql`delete from cases where id = ${caseRecord.id}`;
