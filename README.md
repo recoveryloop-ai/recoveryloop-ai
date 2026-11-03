@@ -1,6 +1,6 @@
 # RecoveryLoop AI — Architecture and Codex Sprint Kit v1.0
 
-**Status:** Sprint S2 complete and S0–S2 remediation verified: the RecoveryLoop Supabase ledger contains one real, independently verified PayPal sandbox capture, duplicate capture replay is guarded, and the authenticated receipt passes desktop/mobile browser QA. Sprint S3 is next but has not started. Updated 3 November 2026, Asia/Karachi.
+**Status:** Sprint S3 complete: the verified PayPal sandbox ledger remains unchanged, and real EasyPost test events now produce normalized, provenance-labeled, replay-safe F02 carrier evidence and deterministic case rules. Sprint S4 is next but has not started. Updated 3 November 2026, Asia/Karachi.
 
 **Product:** AI merchant financial incident resolution with a Financial Obligation Graph, counterfactual resolution simulation, merchant-approved PayPal sandbox refund, verified receipt and isolated public evidence challenge.
 
@@ -68,6 +68,8 @@ npm run db:migrate
 npm run db:seed:s1
 npm run db:verify:s1
 npm run db:verify:s2
+npm run s3:ingest:f02
+npm run db:verify:s3
 ```
 
 `db:down:s1` is intentionally guarded and drops only S1 tables when `ALLOW_S1_DOWN=true` is explicitly supplied. All public tables have RLS enabled, and direct table privileges are revoked from Supabase `anon` and `authenticated`; authenticated application handlers access the database server-side after authorization.

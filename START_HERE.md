@@ -9,11 +9,11 @@ Read in this order:
 4. `docs/JUDGE_DEMO_CONTRACT.md`, `docs/OPENAI_AGENT_CONTRACT.md`, `docs/PROVIDER_SETUP.md` — implementation specifics.
 5. `docs/SPRINT_EXECUTION.md` — checkpoint schedule and code-agent instructions.
 
-## Immediately next: Sprint S3 only
+## Immediately next: Sprint S4 only
 
-**Checkpoint:** S0, S1 and S2 are complete and the cross-sprint remediation gate passes. A real PayPal sandbox `$250.00` capture was independently read back and persisted on 3 November 2026; duplicate capture replay retained the same single receipt. Payment binding preflight, authenticated receipt rendering, Supabase session refresh, evidence provenance, browser security headers, desktop/mobile Playwright coverage, EasyPost test, Z.ai and Supabase readiness are verified. Never send keys in chat or commit `.env.local`.
+**Checkpoint:** S0 through S3 are complete. A real PayPal sandbox `$250.00` capture remains independently verified and unchanged. EasyPost test tracker events for F02 are normalized with `PROVIDER_TEST` provenance, the synthetic item mapping is explicit, replay inserts no duplicates, and deterministic rules R01/R02 connect the returned item to case `RG-2048`. Never send keys in chat or commit `.env.local`.
 
-**Coding-agent S3 assignment:** Implement carrier evidence ingestion and deterministic case rules only. Ingest EasyPost test events behind the carrier adapter, normalize timestamps/status/provenance, make replay idempotent, and prove that the returned-to-sender F02 scenario creates the correct case without altering the PayPal ledger. Do not begin S4 behavior.
+**Coding-agent S4 assignment:** Implement the deterministic obligation graph and counterfactual simulator only. Preserve provider evidence and the verified payment ledger. Derive integer-cent obligations from policy plus stored facts, distinguish completed/pending/hypothetical amounts, block duplicate obligations, and prove F02/F03/F04 outcomes without AI or provider writes. Do not begin S5 behavior.
 
 ## What judges can do
 
@@ -25,4 +25,4 @@ Official close as documented in blueprint: 13 November 2026 at 01:00 PKT; intern
 
 ## Next Codex prompt
 
-> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially S3 and sections 6, 9, 12, 17 and 18), docs/PROVIDER_SETUP.md, and all completed sprint reports. Execute Sprint S3 ONLY. Preserve the verified S2 PayPal ledger. Implement typed EasyPost test ingestion, normalized carrier events with explicit provenance, idempotent replay, and deterministic returned-to-sender case creation for F02. Run all required checks and report exact provider evidence, security invariants and blockers. Do not begin S4 without owner approval.
+> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially S4 and sections 5, 7, 8, 9, 12, 17 and 18), and all completed sprint reports. Execute Sprint S4 ONLY. Preserve the verified S2 payment ledger and S3 carrier evidence. Implement deterministic integer-cent obligation derivation, typed graph projection and side-effect-free counterfactual simulation for F01-F07/F11/F14. Prove F02 permits the policy-derived `$100` proposal while F03/F04 block duplicate or reserved amounts. Do not begin S5 without owner approval.

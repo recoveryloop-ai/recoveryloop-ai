@@ -58,7 +58,8 @@ try {
     order by tablename`;
   const expectedTables = [
     "audit_events", "captures", "cases", "evidence", "merchants", "obligations", "order_items",
-    "orders", "paypal_orders", "policy_versions", "refunds", "users", "webhook_inbox",
+    "orders", "paypal_orders", "policy_versions", "refunds", "shipment_events", "shipment_items",
+    "shipments", "users", "webhook_inbox",
   ];
   if (
     tables.map((table) => table.tablename).join(",") !== expectedTables.join(",") ||

@@ -24,7 +24,7 @@ export function AppShell({ children, active }: { readonly children: ReactNode; r
         </nav>
         <div className="sidebar-note">
           <span className="pulse-dot" aria-hidden="true" />
-          <div><strong>S2 verified</strong><small>Sandbox data only</small></div>
+          <div><strong>S3 verified</strong><small>Provider test + sandbox data</small></div>
         </div>
       </aside>
       <main className="workspace">{children}</main>

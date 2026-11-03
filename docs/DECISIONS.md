@@ -10,7 +10,7 @@
 | ADR-004 | Next.js/TypeScript modular monolith + Tailwind/shadcn | ACCEPTED | One public Vercel deployment |
 | ADR-005 | Supabase PostgreSQL with Drizzle migrations | ACCEPTED, VERIFIED S1 | RecoveryLoop project migrated, rolled back, re-applied, seeded and verified 1 November 2026 |
 | ADR-006 | Legitimately created PayPal Developer sandbox, no live payments | ACCEPTED, S2 VERIFIED | Real `$250.00` sandbox order approved, captured, independently read back and persisted 3 November 2026; duplicate replay retained exactly one capture row |
-| ADR-007 | EasyPost test mode + explicitly labeled synthetic overlays | ACCEPTED, S0 VERIFIED | EasyPost test API validated; carrier ingestion remains S3 |
+| ADR-007 | EasyPost test mode + explicitly labeled synthetic overlays | ACCEPTED, S3 VERIFIED | Real EasyPost test tracker ingested with `PROVIDER_TEST` events; item mapping remains visibly `SYNTHETIC`; replay is idempotent |
 | ADR-008 | OpenAI API as AI investigator; read-only tools and structured responses | SUPERSEDED by ADR-015 | Owner changed provider on 1 November 2026 |
 | ADR-009 | Public live and navigable Vercel production URL | ACCEPTED | Owner already has Vercel; verify incognito judge access |
 | ADR-010 | Public judge: safe interactive scenarios and read-only provider proofs; operator: authenticated PayPal writes | ACCEPTED | Anonymous public session must never approve or execute real refunds |

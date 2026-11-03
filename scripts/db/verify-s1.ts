@@ -38,7 +38,7 @@ try {
     from evidence e
     join cases c on c.id = e.case_id
     join orders o on o.id = c.order_id
-    where o.fixture_key in ('F02', 'F03', 'F04', 'F05')
+    where o.fixture_key in ('F02', 'F03', 'F04', 'F05') and e.provider = 'FIXTURE'
     order by o.fixture_key`;
   const expectedCaseRefs = new Map([
     ["F02", "RG-2048"], ["F03", "RG-2049"], ["F04", "RG-2050"], ["F05", "RG-2051"],

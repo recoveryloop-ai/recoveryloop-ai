@@ -6,6 +6,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -83,6 +84,64 @@ export const orderItems = pgTable("order_items", {
   check("order_items_amounts_nonnegative", sql`${table.unitMinor} >= 0 and ${table.taxMinor} >= 0 and ${table.shippingAllocationMinor} >= 0`),
 ]);
 
+export const shipments = pgTable("shipments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  orderId: uuid("order_id").notNull().references(() => orders.id, { onDelete: "restrict" }),
+  provider: varchar("provider", { length: 24 }).notNull(),
+  providerTrackerId: varchar("provider_tracker_id", { length: 128 }).notNull(),
+  trackingCode: varchar("tracking_code", { length: 80 }).notNull(),
+  carrier: varchar("carrier", { length: 64 }),
+  status: varchar("status", { length: 32 }).notNull(),
+  statusDetail: varchar("status_detail", { length: 64 }),
+  sourceTier: varchar("source_tier", { length: 32 }).notNull(),
+  syntheticFlag: boolean("synthetic_flag").notNull().default(false),
+  lastObservedAt: timestamp("last_observed_at", { withTimezone: true }).notNull(),
+  lastRecordedAt: timestamp("last_recorded_at", { withTimezone: true }).notNull().defaultNow(),
+  rawPayloadHash: varchar("raw_payload_hash", { length: 64 }).notNull(),
+  createdAt,
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("shipments_provider_tracker_unique").on(table.provider, table.providerTrackerId),
+  index("shipments_order_idx").on(table.orderId),
+  index("shipments_status_idx").on(table.status),
+  check("shipments_source_tier_valid", sql`${table.sourceTier} in ('PROVIDER_TEST', 'SYNTHETIC')`),
+]);
+
+export const shipmentItems = pgTable("shipment_items", {
+  shipmentId: uuid("shipment_id").notNull().references(() => shipments.id, { onDelete: "cascade" }),
+  orderItemId: uuid("order_item_id").notNull().references(() => orderItems.id, { onDelete: "restrict" }),
+  quantity: integer("quantity").notNull(),
+  sourceTier: varchar("source_tier", { length: 32 }).notNull(),
+  syntheticFlag: boolean("synthetic_flag").notNull().default(true),
+  createdAt,
+}, (table) => [
+  primaryKey({ columns: [table.shipmentId, table.orderItemId], name: "shipment_items_pk" }),
+  index("shipment_items_order_item_idx").on(table.orderItemId),
+  check("shipment_items_quantity_positive", sql`${table.quantity} > 0`),
+  check("shipment_items_source_tier_valid", sql`${table.sourceTier} in ('MERCHANT_ATTESTED', 'SYNTHETIC')`),
+]);
+
+export const shipmentEvents = pgTable("shipment_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  shipmentId: uuid("shipment_id").notNull().references(() => shipments.id, { onDelete: "cascade" }),
+  provider: varchar("provider", { length: 24 }).notNull(),
+  providerEventId: varchar("provider_event_id", { length: 160 }).notNull(),
+  eventType: varchar("event_type", { length: 32 }).notNull(),
+  eventDetail: varchar("event_detail", { length: 64 }),
+  message: text("message"),
+  location: jsonb("location").notNull(),
+  observedAt: timestamp("observed_at", { withTimezone: true }).notNull(),
+  recordedAt: timestamp("recorded_at", { withTimezone: true }).notNull().defaultNow(),
+  sourceTier: varchar("source_tier", { length: 32 }).notNull(),
+  syntheticFlag: boolean("synthetic_flag").notNull().default(false),
+  rawPayloadHash: varchar("raw_payload_hash", { length: 64 }).notNull(),
+  rawPayload: jsonb("raw_payload").notNull(),
+}, (table) => [
+  uniqueIndex("shipment_events_provider_event_unique").on(table.provider, table.providerEventId),
+  index("shipment_events_shipment_observed_idx").on(table.shipmentId, table.observedAt),
+  check("shipment_events_source_tier_valid", sql`${table.sourceTier} in ('PROVIDER_TEST', 'SYNTHETIC')`),
+]);
+
 export const captures = pgTable("captures", {
   id: uuid("id").primaryKey().defaultRandom(),
   orderId: uuid("order_id").notNull().references(() => orders.id, { onDelete: "restrict" }),
@@ -144,11 +203,18 @@ export const cases = pgTable("cases", {
   kind: varchar("kind", { length: 40 }).notNull(),
   status: varchar("status", { length: 24 }).notNull(),
   severity: varchar("severity", { length: 16 }).notNull(),
+  detectionKey: varchar("detection_key", { length: 220 }),
+  ruleKey: varchar("rule_key", { length: 16 }),
+  sourceTier: varchar("source_tier", { length: 32 }).notNull().default("SYNTHETIC"),
+  lastEventAt: timestamp("last_event_at", { withTimezone: true }),
   openedAt: timestamp("opened_at", { withTimezone: true }).notNull().defaultNow(),
   closedAt: timestamp("closed_at", { withTimezone: true }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
   uniqueIndex("cases_external_ref_unique").on(table.externalRef),
+  uniqueIndex("cases_detection_key_unique").on(table.detectionKey),
   index("cases_order_idx").on(table.orderId),
+  check("cases_source_tier_valid", sql`${table.sourceTier} in ('PROVIDER_TEST', 'MERCHANT_ATTESTED', 'SYNTHETIC', 'AI_DERIVED')`),
 ]);
 
 export const obligations = pgTable("obligations", {

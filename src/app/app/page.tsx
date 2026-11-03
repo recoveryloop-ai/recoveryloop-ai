@@ -4,11 +4,11 @@ import { AppShell } from "@/components/app-shell";
 import { formatMoney, money } from "@/shared/money";
 
 const fixtureCards = [
-  { id: "F01", label: "Clean delivery", state: "Resolved", amount: 0 },
-  { id: "F02", label: "Return to sender", state: "Needs review", amount: 10_000 },
-  { id: "F03", label: "Already refunded", state: "Protected", amount: 0 },
-  { id: "F04", label: "Refund pending", state: "Monitoring", amount: 10_000 },
-  { id: "F05", label: "Independent item", state: "Needs review", amount: 3_000 },
+  { id: "F01", label: "Clean delivery", state: "Resolved", source: "Synthetic fixture", amount: 0 },
+  { id: "F02", label: "Return to sender", state: "Needs review", source: "EasyPost test · synthetic item mapping", amount: 10_000 },
+  { id: "F03", label: "Already refunded", state: "Protected", source: "Synthetic fixture", amount: 0 },
+  { id: "F04", label: "Refund pending", state: "Monitoring", source: "Synthetic fixture", amount: 10_000 },
+  { id: "F05", label: "Independent item", state: "Needs review", source: "Synthetic fixture", amount: 3_000 },
 ] as const;
 
 export default function CommandCenterPage() {
@@ -24,12 +24,12 @@ export default function CommandCenterPage() {
         <article><span>Currency</span><strong>USD</strong><small>Mixed currency rejected</small></article>
       </section>
       <section className="panel scenario-panel">
-        <div className="section-heading"><div><p className="eyebrow">Fixture ledger</p><h2>Recovery scenarios</h2></div><span className="status-pill muted">Synthetic test data</span></div>
+        <div className="section-heading"><div><p className="eyebrow">Fixture ledger</p><h2>Recovery scenarios</h2></div><span className="status-pill muted">Mixed test provenance</span></div>
         <div className="scenario-list">
           {fixtureCards.map((fixture) => (
             <article className="scenario-row" key={fixture.id}>
               <span className="fixture-id">{fixture.id}</span>
-              <div><strong>{fixture.label}</strong><small>{fixture.state}</small></div>
+              <div><strong>{fixture.label}</strong><small>{fixture.state} · {fixture.source}</small></div>
               <span className={fixture.amount ? "amount attention" : "amount"}>{fixture.amount ? formatMoney(money(fixture.amount)) : "No action"}</span>
             </article>
           ))}
