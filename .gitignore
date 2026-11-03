@@ -11,3 +11,4 @@ test-results
 *.tsbuildinfo
 .s0-smoke-output.json
 .s2-checkout-state.json
+.vercel

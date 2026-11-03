@@ -3,6 +3,8 @@ import { defineConfig, devices } from "@playwright/test";
 
 loadEnvironment({ path: ".env.local", quiet: true });
 
+const deployedBaseUrl = process.env.PLAYWRIGHT_BASE_URL?.trim();
+
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: false,
@@ -11,11 +13,11 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? "github" : "list",
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL: deployedBaseUrl || "http://127.0.0.1:4173",
     trace: "off",
     screenshot: "only-on-failure",
   },
-  webServer: {
+  webServer: deployedBaseUrl ? undefined : {
     command: "npm run start -- --hostname 127.0.0.1 --port 4173",
     env: { ...process.env, NODE_ENV: "production" },
     url: "http://127.0.0.1:4173",
