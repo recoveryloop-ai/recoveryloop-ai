@@ -53,10 +53,18 @@ Provider IDs are redacted in logs and public certificate output. No live PayPal 
 | `npm run db:verify:s1` through `db:verify:s6` | PASS — prior contracts preserved |
 | `npm run s6:execute` | PASS — idempotent GET-verified closed action and duplicate block |
 | `npm run test:e2e` | PASS — 18 desktop/mobile/operator tests, including redacted certificate and anonymous S6 route denial |
+| Production `npm run test:e2e` | PASS — all 18 tests against `https://recoveryloop-ai.vercel.app` |
 | `npm audit --audit-level=high` | PASS — 0 vulnerabilities |
 | `npm run smoke:all` | PASS — PayPal, EasyPost, Z.ai and Supabase |
+| GitHub Actions CI | PASS — run `41691077690` for commit `8d968dd` |
 
 The Supabase management connector still lacks advisor permission on the transferred project. Direct database verification confirms RLS, grants, constraints, indexes, application-role privilege boundaries and transactional concurrency behavior.
+
+## Production release
+
+- Vercel deployment `dpl_GwK4uqcQziiEBWULKXv9VPrSAHvM` reached `READY` and is aliased to `https://recoveryloop-ai.vercel.app`.
+- The production browser suite verified the redacted PayPal certificate, S4/S5 regressions, operator sign-in/receipt and anonymous denial on all S6 write routes on desktop and mobile.
+- The post-deploy Vercel error scan returned zero error-level records in the available Hobby-plan retention window.
 
 ## Failing-check disclosure
 
