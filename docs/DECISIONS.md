@@ -20,6 +20,7 @@
 | ADR-014 | No live courier claim submissions, no real seller/buyer records, no production payment API | REQUIRED | Accurate claims in demo and documentation |
 | ADR-015 | Z.ai standard Model API with `glm-5.3`, behind a provider-neutral AI adapter | ACCEPTED | Owner-approved 1 November 2026; same read-only tool, evidence, structured-output, budget and no-money-authority rules as ADR-008 |
 | ADR-016 | Mock PayPal adapter permitted before credentials, always labeled `SYNTHETIC` and never accepted as provider proof | ACCEPTED, TEMPORARY | Owner-approved for S0 development; real PayPal sandbox OAuth/order remains the S0 exit gate and replacement condition |
+| ADR-017 | Deterministic versioned-policy engine is the sole authority for obligation amounts; simulations are provider-write-free | ACCEPTED, S4 VERIFIED | Integer-cent F01-F07/F11/F14 fixtures pass; F02 allows `$100.00`, F03/F04 block, every persisted graph edge cites evidence |
 
 ## Owner provisioning items
 

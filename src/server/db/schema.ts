@@ -238,6 +238,20 @@ export const obligations = pgTable("obligations", {
   check("obligations_amount_nonnegative", sql`${table.entitledMinor} >= 0`),
 ]);
 
+export const obligationAllocations = pgTable("obligation_allocations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  obligationId: uuid("obligation_id").notNull().references(() => obligations.id, { onDelete: "restrict" }),
+  refundId: uuid("refund_id").notNull().references(() => refunds.id, { onDelete: "restrict" }),
+  amountMinor: integer("amount_minor").notNull(),
+  state: varchar("state", { length: 16 }).notNull(),
+  createdAt,
+}, (table) => [
+  uniqueIndex("obligation_allocations_obligation_refund_unique").on(table.obligationId, table.refundId),
+  index("obligation_allocations_refund_idx").on(table.refundId),
+  check("obligation_allocations_amount_positive", sql`${table.amountMinor} > 0`),
+  check("obligation_allocations_state_valid", sql`${table.state} in ('COMPLETED', 'RESERVED')`),
+]);
+
 export const evidence = pgTable("evidence", {
   id: uuid("id").primaryKey().defaultRandom(),
   caseId: uuid("case_id").notNull().references(() => cases.id, { onDelete: "restrict" }),
@@ -252,6 +266,34 @@ export const evidence = pgTable("evidence", {
 }, (table) => [
   uniqueIndex("evidence_case_external_unique").on(table.caseId, table.externalId),
   check("evidence_source_tier_valid", sql`${table.sourceTier} in ('PROVIDER_VERIFIED', 'PROVIDER_TEST', 'MERCHANT_ATTESTED', 'SYNTHETIC', 'AI_DERIVED')`),
+]);
+
+export const graphEdges = pgTable("graph_edges", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  caseId: uuid("case_id").notNull().references(() => cases.id, { onDelete: "restrict" }),
+  fromType: varchar("from_type", { length: 24 }).notNull(),
+  fromId: uuid("from_id").notNull(),
+  relation: varchar("relation", { length: 32 }).notNull(),
+  toType: varchar("to_type", { length: 24 }).notNull(),
+  toId: uuid("to_id").notNull(),
+  evidenceId: uuid("evidence_id").notNull().references(() => evidence.id, { onDelete: "restrict" }),
+  createdAt,
+}, (table) => [
+  uniqueIndex("graph_edges_semantic_unique").on(
+    table.caseId,
+    table.fromType,
+    table.fromId,
+    table.relation,
+    table.toType,
+    table.toId,
+    table.evidenceId,
+  ),
+  index("graph_edges_case_idx").on(table.caseId),
+  index("graph_edges_evidence_idx").on(table.evidenceId),
+  index("graph_edges_from_idx").on(table.fromType, table.fromId),
+  index("graph_edges_to_idx").on(table.toType, table.toId),
+  check("graph_edges_node_types_valid", sql`${table.fromType} in ('ORDER', 'ITEM', 'CAPTURE', 'REFUND', 'OBLIGATION', 'SHIPMENT', 'EVENT') and ${table.toType} in ('ORDER', 'ITEM', 'CAPTURE', 'REFUND', 'OBLIGATION', 'SHIPMENT', 'EVENT')`),
+  check("graph_edges_relation_valid", sql`${table.relation} in ('HAS_ITEM', 'PAID_BY', 'PACKED_IN', 'REPORTED_AS', 'SUBJECT_TO', 'SATISFIES')`),
 ]);
 
 export const auditEvents = pgTable("audit_events", {

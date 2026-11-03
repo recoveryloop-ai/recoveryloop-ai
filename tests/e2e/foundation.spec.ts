@@ -31,3 +31,38 @@ test("untrusted signout request returns a structured denial", async ({ request }
     correlation_id: expect.any(String),
   });
 });
+
+test("S4 simulator is deterministic and cannot write to a provider", async ({ request }) => {
+  const eligible = await request.post("/api/cases/RG-2048/simulate", {
+    data: { option: "ISSUE_POLICY_REFUND" },
+  });
+  expect(eligible.status()).toBe(200);
+  await expect(eligible.json()).resolves.toMatchObject({
+    case_ref: "RG-2048",
+    mode: "SIMULATION_ONLY",
+    provider_write: false,
+    obligation: {
+      decision: "ALLOWED",
+      proposedRefundMinor: 10_000,
+      conditionalRecoveryMinor: 0,
+    },
+    simulation: {
+      newRefundMinor: 10_000,
+      safeguardResult: "PASS",
+    },
+  });
+
+  const duplicate = await request.post("/api/cases/RG-2049/simulate", {
+    data: { option: "ISSUE_POLICY_REFUND" },
+  });
+  expect(duplicate.status()).toBe(200);
+  await expect(duplicate.json()).resolves.toMatchObject({
+    provider_write: false,
+    obligation: {
+      decision: "BLOCKED",
+      proposedRefundMinor: 0,
+      reasonCodes: ["REFUND_ALREADY_SETTLED"],
+    },
+    simulation: { newRefundMinor: 0, safeguardResult: "BLOCK" },
+  });
+});

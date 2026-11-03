@@ -9,11 +9,11 @@ Read in this order:
 4. `docs/JUDGE_DEMO_CONTRACT.md`, `docs/OPENAI_AGENT_CONTRACT.md`, `docs/PROVIDER_SETUP.md` — implementation specifics.
 5. `docs/SPRINT_EXECUTION.md` — checkpoint schedule and code-agent instructions.
 
-## Immediately next: Sprint S4 only
+## Immediately next: Sprint S5 only (requires owner approval)
 
-**Checkpoint:** S0 through S3 and the pre-S4 deployment-hardening checkpoint are complete. The public production app is live at `https://recoveryloop-ai.vercel.app`, PayPal sandbox and EasyPost test webhooks are registered, signed EasyPost replay is deduplicated, and deployed desktop/mobile/operator tests pass. A real PayPal sandbox `$250.00` capture remains independently verified and unchanged. EasyPost test tracker events for F02 are normalized with `PROVIDER_TEST` provenance, the synthetic item mapping is explicit, replay inserts no duplicates, and deterministic rules R01/R02 connect the returned item to case `RG-2048`. Never send keys in chat or commit `.env.local`.
+**Checkpoint:** S0 through S4 and the pre-S4 deployment-hardening checkpoint are complete. The public production app is live at `https://recoveryloop-ai.vercel.app`. A real PayPal sandbox `$250.00` capture remains independently verified and unchanged. EasyPost test evidence is normalized and replay-safe. The deterministic S4 engine derives a `$100.00` F02 obligation, blocks F03 as already settled, blocks F04 as reserved/unknown, preserves independent F05 eligibility, and exposes a side-effect-free simulator with evidence-backed graph edges. Never send keys in chat or commit `.env.local`.
 
-**Coding-agent S4 assignment:** Implement the deterministic obligation graph and counterfactual simulator only. Preserve provider evidence and the verified payment ledger. Derive integer-cent obligations from policy plus stored facts, distinguish completed/pending/hypothetical amounts, block duplicate obligations, and prove F02/F03/F04 outcomes without AI or provider writes. Do not begin S5 behavior.
+**Coding-agent S5 assignment (only after owner approval):** Implement the Z.ai GLM investigator with read-only, allowlisted tools, strict structured output and server-validated evidence citations. The model may explain findings but never calculate, authorize or execute money. Preserve the verified provider evidence, payment ledger and deterministic S4 financial outputs. Do not begin S6 behavior.
 
 ## What judges can do
 
@@ -25,4 +25,4 @@ Official close as documented in blueprint: 13 November 2026 at 01:00 PKT; intern
 
 ## Next Codex prompt
 
-> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially S4 and sections 5, 7, 8, 9, 12, 17 and 18), and all completed sprint reports. Execute Sprint S4 ONLY. Preserve the verified S2 payment ledger and S3 carrier evidence. Implement deterministic integer-cent obligation derivation, typed graph projection and side-effect-free counterfactual simulation for F01-F07/F11/F14. Prove F02 permits the policy-derived `$100` proposal while F03/F04 block duplicate or reserved amounts. Do not begin S5 without owner approval.
+> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially S5 and sections 7, 8, 9, 12, 17 and 18), and all completed sprint reports. Execute Sprint S5 ONLY after explicit owner approval. Use Z.ai GLM 5.3 behind the provider-neutral adapter with read-only allowlisted tools, strict schema validation and evidence-ID citation enforcement. The model has no authority over money. Do not begin S6 without owner approval.

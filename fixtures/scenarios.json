@@ -9,7 +9,9 @@
     {"id":"F04", "order_ref":"DEMO-F04", "total_minor":10000, "description":"B refund pending", "capture_minor":10000, "return_to_sender_items":["B"], "pending_refunds":[{"obligation_key":"DEMO-F04:B:RETURN_TO_SENDER", "amount_minor":10000}], "expected_additional_refund_minor":0, "expected_reason":"REFUND_RESERVED"},
     {"id":"F05", "order_ref":"DEMO-F05", "total_minor":3000, "description":"Low-value item returned", "capture_minor":3000, "return_to_sender_items":["C"], "completed_refunds":[], "expected_refund_eligible_minor":3000},
     {"id":"F06", "description":"Capture not completed", "capture_status":"PENDING", "return_to_sender_items":["B"], "expected_reason":"CAPTURE_NOT_COMPLETED"},
+    {"id":"F07", "description":"Concurrent reservation for the same semantic obligation", "capture_minor":25000, "reserved_refunds":[{"obligation_key":"RG-2048:B:RETURN_TO_SENDER", "amount_minor":10000}], "expected_reason":"REFUND_RESERVED"},
     {"id":"F11", "description":"Contradictory delivery ZIP", "event_source_tier":"SYNTHETIC", "order_zip":"10001", "carrier_zip":"10011", "expected_reason":"EVIDENCE_CONTRADICTS_ADDRESS"},
-    {"id":"F12", "description":"AI invented evidence ID", "model_evidence_ids":["ev-nonexistent"], "expected_reason":"UNSUPPORTED_CITATION"}
+    {"id":"F12", "description":"AI invented evidence ID", "model_evidence_ids":["ev-nonexistent"], "expected_reason":"UNSUPPORTED_CITATION"},
+    {"id":"F14", "description":"Requested refund exceeds verified remaining capture", "capture_minor":9999, "requested_refund_minor":10000, "expected_reason":"EXCEEDS_CAPTURE_BALANCE"}
   ]
 }

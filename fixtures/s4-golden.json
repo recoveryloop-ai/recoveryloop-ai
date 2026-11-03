@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "synthetic": true,
+    "currency": "USD",
+    "policy_version": "v1",
+    "purpose": "Golden deterministic obligation-engine snapshots; no provider writes"
+  },
+  "formulas": {
+    "line_total": "(unit_minor * quantity) + tax_minor + shipping_minor",
+    "outstanding": "max(0, entitled_minor - completed_allocated_minor)",
+    "capture_remaining": "max(0, completed_capture_minor - completed_allocated_minor - reserved_allocated_minor - other_refunds_minor)",
+    "proposal": "allowed ? requested_minor : 0"
+  },
+  "fixtures": [
+    {
+      "id": "F01",
+      "input": { "fulfillment_status": "DELIVERED", "unit_minor": 15000, "completed_capture_minor": 15000, "completed_allocated_minor": 0, "reserved_allocated_minor": 0, "requested_minor": 0, "evidence_ids": ["ev-f01-ledger"] },
+      "expected": { "decision": "BLOCKED", "reason_codes": ["NO_REFUND_OBLIGATION"], "entitled_minor": 0, "realized_refund_minor": 0, "pending_reservation_minor": 0, "outstanding_minor": 0, "capture_remaining_minor": 15000, "proposed_refund_minor": 0 }
+    },
+    {
+      "id": "F02",
+      "input": { "fulfillment_status": "RETURNED_TO_SENDER", "unit_minor": 10000, "completed_capture_minor": 25000, "completed_allocated_minor": 0, "reserved_allocated_minor": 0, "requested_minor": 10000, "evidence_ids": ["ev-f02-carrier", "ev-f02-policy", "ev-f02-capture"] },
+      "expected": { "decision": "ALLOWED", "reason_codes": ["REFUND_ELIGIBLE"], "entitled_minor": 10000, "realized_refund_minor": 0, "pending_reservation_minor": 0, "outstanding_minor": 10000, "capture_remaining_minor": 25000, "proposed_refund_minor": 10000 }
+    },
+    {
+      "id": "F03",
+      "input": { "fulfillment_status": "RETURNED_TO_SENDER", "unit_minor": 10000, "completed_capture_minor": 10000, "completed_allocated_minor": 10000, "reserved_allocated_minor": 0, "requested_minor": 10000, "evidence_ids": ["ev-f03-refund", "ev-f03-policy"] },
+      "expected": { "decision": "BLOCKED", "reason_codes": ["REFUND_ALREADY_SETTLED"], "entitled_minor": 10000, "realized_refund_minor": 10000, "pending_reservation_minor": 0, "outstanding_minor": 0, "capture_remaining_minor": 0, "proposed_refund_minor": 0 }
+    },
+    {
+      "id": "F04",
+      "input": { "fulfillment_status": "RETURNED_TO_SENDER", "unit_minor": 10000, "completed_capture_minor": 10000, "completed_allocated_minor": 0, "reserved_allocated_minor": 10000, "requested_minor": 10000, "unknown_payment_outcome": true, "evidence_ids": ["ev-f04-pending", "ev-f04-policy"] },
+      "expected": { "decision": "BLOCKED", "reason_codes": ["REFUND_RESERVED", "UNKNOWN_PAYMENT_OUTCOME"], "entitled_minor": 10000, "realized_refund_minor": 0, "pending_reservation_minor": 10000, "outstanding_minor": 10000, "capture_remaining_minor": 0, "proposed_refund_minor": 0 }
+    },
+    {
+      "id": "F05",
+      "input": { "fulfillment_status": "RETURNED_TO_SENDER", "unit_minor": 3000, "completed_capture_minor": 3000, "completed_allocated_minor": 0, "reserved_allocated_minor": 0, "requested_minor": 3000, "evidence_ids": ["ev-f05-carrier", "ev-f05-policy"] },
+      "expected": { "decision": "ALLOWED", "reason_codes": ["REFUND_ELIGIBLE"], "entitled_minor": 3000, "realized_refund_minor": 0, "pending_reservation_minor": 0, "outstanding_minor": 3000, "capture_remaining_minor": 3000, "proposed_refund_minor": 3000 }
+    },
+    {
+      "id": "F06",
+      "input": { "fulfillment_status": "RETURNED_TO_SENDER", "unit_minor": 10000, "completed_capture_minor": 0, "completed_allocated_minor": 0, "reserved_allocated_minor": 0, "requested_minor": 10000, "evidence_ids": ["ev-f06-payment-pending"] },
+      "expected": { "decision": "BLOCKED", "reason_codes": ["CAPTURE_NOT_COMPLETED"], "entitled_minor": 10000, "realized_refund_minor": 0, "pending_reservation_minor": 0, "outstanding_minor": 10000, "capture_remaining_minor": 0, "proposed_refund_minor": 0 }
+    },
+    {
+      "id": "F07",
+      "input": { "fulfillment_status": "RETURNED_TO_SENDER", "unit_minor": 10000, "completed_capture_minor": 25000, "completed_allocated_minor": 0, "reserved_allocated_minor": 10000, "requested_minor": 10000, "unknown_payment_outcome": true, "evidence_ids": ["ev-f07-concurrent-reservation"] },
+      "expected": { "decision": "BLOCKED", "reason_codes": ["REFUND_RESERVED", "UNKNOWN_PAYMENT_OUTCOME"], "entitled_minor": 10000, "realized_refund_minor": 0, "pending_reservation_minor": 10000, "outstanding_minor": 10000, "capture_remaining_minor": 15000, "proposed_refund_minor": 0 }
+    },
+    {
+      "id": "F11",
+      "input": { "fulfillment_status": "RETURNED_TO_SENDER", "unit_minor": 10000, "completed_capture_minor": 25000, "completed_allocated_minor": 0, "reserved_allocated_minor": 0, "requested_minor": 10000, "evidence_contradiction": true, "evidence_ids": ["ev-f11-provider-delivered", "ev-f11-synthetic-address"] },
+      "expected": { "decision": "BLOCKED", "reason_codes": ["EVIDENCE_CONTRADICTS_ADDRESS"], "entitled_minor": 10000, "realized_refund_minor": 0, "pending_reservation_minor": 0, "outstanding_minor": 10000, "capture_remaining_minor": 25000, "proposed_refund_minor": 0 }
+    },
+    {
+      "id": "F14",
+      "input": { "fulfillment_status": "RETURNED_TO_SENDER", "unit_minor": 10000, "completed_capture_minor": 9999, "completed_allocated_minor": 0, "reserved_allocated_minor": 0, "requested_minor": 10000, "evidence_ids": ["ev-f14-capture"] },
+      "expected": { "decision": "BLOCKED", "reason_codes": ["EXCEEDS_CAPTURE_BALANCE"], "entitled_minor": 10000, "realized_refund_minor": 0, "pending_reservation_minor": 0, "outstanding_minor": 10000, "capture_remaining_minor": 9999, "proposed_refund_minor": 0 }
+    }
+  ]
+}
