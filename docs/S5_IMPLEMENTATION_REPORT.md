@@ -52,8 +52,16 @@ No PayPal, EasyPost or other provider write was made by S5. Raw Z.ai response ID
 | `npm audit --audit-level=high` | PASS — 0 vulnerabilities |
 | `npm run build` | PASS — case page and investigator route included |
 | `npm run test:e2e` | PASS — 14 desktop/mobile/operator tests |
+| Production `npm run test:e2e` | PASS — all 14 tests against `https://recoveryloop-ai.vercel.app` |
 | `npm run db:verify:s1` through `db:verify:s5` | PASS — all prior contracts preserved |
 | `npm run smoke:all` | PASS — PayPal, EasyPost, Z.ai and Supabase |
+| GitHub Actions CI | PASS — run `41687842899` for commit `529e1ba` |
+
+## Production release
+
+- Vercel deployment `dpl_9PwwNP9rPasFpJwyBJKDUwv6uWgW` reached `READY` and is aliased to `https://recoveryloop-ai.vercel.app`.
+- The production browser suite verified the S5 case narrative, stored citations, deterministic financial authority, anonymous quota denial and the existing operator receipt on desktop and mobile.
+- The post-deploy Vercel error scan returned zero error-level records in the available Hobby-plan retention window.
 
 The Supabase management connector remains scoped to the former project owner and cannot call advisors for this transferred project. Direct application-role checks verify the new table's RLS, grants, indexes and non-superuser access. Current Supabase guidance on exposed-schema RLS and revoked public-role grants is applied.
 
