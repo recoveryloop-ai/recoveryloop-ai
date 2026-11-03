@@ -33,6 +33,28 @@ describe("mock PayPal provider", () => {
     expect(second).toEqual(first);
   });
 
+  it("keeps synthetic refunds idempotent and visibly non-provider evidence", async () => {
+    const provider = new MockPayPalProvider();
+    const order = await provider.createOrder({
+      requestId: "order-request",
+      localOrderId: "local-order-refund",
+      amountMinor: 25_000,
+      currency: "USD",
+    });
+    const capture = await provider.captureOrder({ requestId: "capture-request", providerOrderId: order.providerOrderId });
+    const input = {
+      requestId: "refund-request",
+      providerCaptureId: capture.providerCaptureId,
+      amountMinor: 10_000,
+      currency: "USD" as const,
+      customId: "action-1",
+    };
+    const first = await provider.refundCapture(input);
+    const second = await provider.refundCapture(input);
+    expect(second).toEqual(first);
+    expect(first).toMatchObject({ amountMinor: 10_000, status: "COMPLETED", sourceTier: "SYNTHETIC", synthetic: true });
+  });
+
   it("rejects non-integer money", async () => {
     const provider = new MockPayPalProvider();
     await expect(

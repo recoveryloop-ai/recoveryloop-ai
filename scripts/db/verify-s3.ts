@@ -87,9 +87,12 @@ try {
   try {
     await client.begin(async (sql) => {
       await sql`update obligations set case_id = null where case_id = ${caseRecord.id}`;
+      await sql`delete from audit_events where case_id = ${caseRecord.id}`;
+      await sql`delete from certificates where case_id = ${caseRecord.id}`;
+      await sql`delete from actions where proposal_id in (select id from proposals where case_id = ${caseRecord.id})`;
+      await sql`delete from proposals where case_id = ${caseRecord.id}`;
       await sql`delete from graph_edges where case_id = ${caseRecord.id}`;
       await sql`delete from investigations where case_id = ${caseRecord.id}`;
-      await sql`delete from audit_events where case_id = ${caseRecord.id}`;
       await sql`delete from evidence where case_id = ${caseRecord.id}`;
       await sql`delete from cases where id = ${caseRecord.id}`;
       const [before] = await sql<{ count: number }[]>`select count(*)::int as count from cases where external_ref = 'RG-2048'`;

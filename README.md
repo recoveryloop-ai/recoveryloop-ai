@@ -1,6 +1,6 @@
 # RecoveryLoop AI — Architecture and Codex Sprint Kit v1.0
 
-**Status:** Sprint S3 complete: the verified PayPal sandbox ledger remains unchanged, and real EasyPost test events now produce normalized, provenance-labeled, replay-safe F02 carrier evidence and deterministic case rules. Sprint S4 is next but has not started. Updated 3 November 2026, Asia/Karachi.
+**Status:** Sprint S6 complete: the verified `$250.00` PayPal sandbox capture has exactly one operator-approved `$100.00` partial refund, independently GET-verified and stored with its allocation, audit trail and redacted certificate. S7 is next but has not started. Updated 3 November 2026, Asia/Karachi.
 
 **Product:** AI merchant financial incident resolution with a Financial Obligation Graph, counterfactual resolution simulation, merchant-approved PayPal sandbox refund, verified receipt and isolated public evidence challenge.
 
@@ -38,7 +38,7 @@ npm run dev
 
 The application routes include `/`, `/app`, `/store`, and `/login`. PayPal sandbox checkout is available only after server-verified operator authentication. The protected diagnostic and payment routes verify a Supabase session or bearer token, the allowlisted operator email, and `app_metadata.role`; anonymous requests receive `401`.
 
-The S2 checkout sequence is deliberately split: create local order and PayPal sandbox order, buyer approval, explicit server capture, independent capture GET/read-back, then durable receipt. Capture and order IDs are distinct. Refund execution remains unavailable until S6.
+The S2 checkout sequence is deliberately split: create local order and PayPal sandbox order, buyer approval, explicit server capture, independent capture GET/read-back, then durable receipt. Capture and order IDs are distinct. S6 refund execution is separately operator-gated and requires an immutable proposal hash, exact confirmation phrase, database reservation, stable request ID and refund GET read-back.
 
 Run each provider check independently when provider readiness must be re-verified:
 
@@ -70,7 +70,14 @@ npm run db:verify:s1
 npm run db:verify:s2
 npm run s3:ingest:f02
 npm run db:verify:s3
+npm run s4:reconcile
+npm run db:verify:s4
+npm run db:verify:s5
+npm run s6:prepare
+npm run db:verify:s6
 ```
+
+`s6:execute` is the authenticated real-sandbox proof command. It is idempotent after completion and will not issue a second refund; run it only against the prepared demo capture. `UNKNOWN` actions remain reserved and require the reconcile route with a known provider refund ID.
 
 `db:down:s1` is intentionally guarded and drops only S1 tables when `ALLOW_S1_DOWN=true` is explicitly supplied. All public tables have RLS enabled, and direct table privileges are revoked from Supabase `anon` and `authenticated`; authenticated application handlers access the database server-side after authorization.
 

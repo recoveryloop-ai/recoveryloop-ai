@@ -9,11 +9,11 @@ Read in this order:
 4. `docs/JUDGE_DEMO_CONTRACT.md`, `docs/OPENAI_AGENT_CONTRACT.md`, `docs/PROVIDER_SETUP.md` — implementation specifics.
 5. `docs/SPRINT_EXECUTION.md` — checkpoint schedule and code-agent instructions.
 
-## Immediately next: Sprint S6 only (requires owner approval)
+## Immediately next: Sprint S7 only (requires owner approval)
 
-**Checkpoint:** S0 through S5 and the pre-S4 deployment-hardening checkpoint are complete. The public production app is live at `https://recoveryloop-ai.vercel.app`. A real PayPal sandbox `$250.00` capture remains independently verified and unchanged. S4 remains the sole financial authority. The S5 Z.ai GLM 5.3 investigator uses eight scoped read-only tools, strict output validation, stored-evidence citation checks, prompt-injection redaction and a durable rules-only fallback. F02 has a validated two-citation narrative; no model or public route can execute provider writes. Never send keys in chat or commit `.env.local`.
+**Checkpoint:** S0 through S6 and the pre-S4 deployment-hardening checkpoint are complete. The public production app is live at `https://recoveryloop-ai.vercel.app`. The verified `$250.00` PayPal sandbox capture now has exactly one operator-approved `$100.00` partial refund, independently read back as `COMPLETED`; the durable action is `VERIFIED_CLOSED`, the obligation balance is zero and `$150.00` capture capacity remains. Stale and competing approvals, anonymous money routes, duplicate retries and unknown outcomes fail closed. S4 remains the sole financial authority and S5 remains explanatory only. Never send keys in chat or commit `.env.local`.
 
-**Coding-agent S6 assignment (only after owner approval):** Implement authenticated proposal approval, exact S4-derived refund reservation, stable idempotency, PayPal sandbox partial-refund execution, provider GET read-back, UNKNOWN reconciliation and the minimum durable certificate. Preserve the verified capture and all S5 evidence/AI boundaries. Do not begin S7 behavior.
+**Coding-agent S7 assignment (only after owner approval):** Implement the signed-off six-tab public judge experience, isolated synthetic evidence overlays, safe demo reset, action-center operator UX and polished redacted certificate rendering. Preserve the verified S6 payment ledger and keep all public provider writes forbidden. Do not begin S8 behavior.
 
 ## What judges can do
 
@@ -25,4 +25,4 @@ Official close as documented in blueprint: 13 November 2026 at 01:00 PKT; intern
 
 ## Next Codex prompt
 
-> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially S6 and sections 5, 6, 8, 9, 12, 17 and 18), and all completed sprint reports. Execute Sprint S6 ONLY after explicit owner approval. Bind authenticated approval to an immutable evidence/policy snapshot, reserve the exact deterministic amount under lock, execute only PayPal sandbox with stable idempotency, verify by provider GET and fail closed on unknown outcomes. Do not begin S7 without owner approval.
+> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially S7 and sections 4, 7, 9, 10, 12 and 17), and all completed sprint reports. Execute Sprint S7 ONLY after explicit owner approval. Build isolated judge overlays and a safe reset without mutating canonical provider records, add protected operator action UX over the existing S6 routes, and render the redacted durable certificate. Do not begin S8 without owner approval.

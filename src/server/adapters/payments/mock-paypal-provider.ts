@@ -6,6 +6,8 @@ import type {
   PaymentCapture,
   PaymentOrder,
   PaymentProvider,
+  PaymentRefund,
+  RefundPaymentCaptureInput,
 } from "./payment-provider";
 
 export class MockPayPalProvider implements PaymentProvider {
@@ -16,6 +18,8 @@ export class MockPayPalProvider implements PaymentProvider {
   private readonly providerIdByRequestId = new Map<string, string>();
   private readonly capturesByProviderId = new Map<string, PaymentCapture>();
   private readonly captureIdByRequestId = new Map<string, string>();
+  private readonly refundsByProviderId = new Map<string, PaymentRefund>();
+  private readonly refundIdByRequestId = new Map<string, string>();
 
   async createOrder(input: CreatePaymentOrderInput): Promise<PaymentOrder> {
     if (!Number.isSafeInteger(input.amountMinor) || input.amountMinor <= 0) {
@@ -77,6 +81,33 @@ export class MockPayPalProvider implements PaymentProvider {
 
   async getCapture(providerCaptureId: string): Promise<PaymentCapture | null> {
     return this.capturesByProviderId.get(providerCaptureId) ?? null;
+  }
+
+  async refundCapture(input: RefundPaymentCaptureInput): Promise<PaymentRefund> {
+    const capture = this.capturesByProviderId.get(input.providerCaptureId);
+    if (!capture) throw new Error("PAYMENT_CAPTURE_NOT_FOUND");
+    if (!Number.isSafeInteger(input.amountMinor) || input.amountMinor <= 0) throw new Error("INVALID_INTEGER_MINOR_AMOUNT");
+    const priorId = this.refundIdByRequestId.get(input.requestId);
+    if (priorId) return this.refundsByProviderId.get(priorId)!;
+    const digest = createHash("sha256").update(`${input.requestId}:${input.providerCaptureId}`).digest("hex").slice(0, 16).toUpperCase();
+    const providerRefundId = `MOCK-REFUND-${digest}`;
+    const refund: PaymentRefund = {
+      providerRefundId,
+      providerCaptureId: input.providerCaptureId,
+      amountMinor: input.amountMinor,
+      currency: input.currency,
+      status: "COMPLETED",
+      sourceTier: "SYNTHETIC",
+      synthetic: true,
+      verifiedAt: new Date(0).toISOString(),
+    };
+    this.refundIdByRequestId.set(input.requestId, providerRefundId);
+    this.refundsByProviderId.set(providerRefundId, refund);
+    return refund;
+  }
+
+  async getRefund(providerRefundId: string): Promise<PaymentRefund | null> {
+    return this.refundsByProviderId.get(providerRefundId) ?? null;
   }
 
   async verifyWebhook(): Promise<boolean> {

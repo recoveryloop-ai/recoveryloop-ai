@@ -9,6 +9,9 @@ import type {
   PaymentOrder,
   PaymentOrderStatus,
   PaymentProvider,
+  PaymentRefund,
+  PaymentRefundStatus,
+  RefundPaymentCaptureInput,
   VerifyPayPalWebhookInput,
 } from "./payment-provider";
 
@@ -25,6 +28,14 @@ const amountSchema = z.object({
 });
 
 const captureSchema = z.object({
+  id: z.string().min(1),
+  status: z.string(),
+  amount: amountSchema,
+  create_time: z.string().optional(),
+  update_time: z.string().optional(),
+});
+
+const refundSchema = z.object({
   id: z.string().min(1),
   status: z.string(),
   amount: amountSchema,
@@ -72,6 +83,11 @@ function mapOrderStatus(status: string): PaymentOrderStatus {
 
 function mapCaptureStatus(status: string): PaymentCaptureStatus {
   if (status === "COMPLETED" || status === "PENDING" || status === "DECLINED" || status === "DENIED") return status;
+  return "UNKNOWN";
+}
+
+function mapRefundStatus(status: string): PaymentRefundStatus {
+  if (status === "COMPLETED" || status === "PENDING" || status === "FAILED" || status === "CANCELLED") return status;
   return "UNKNOWN";
 }
 
@@ -168,6 +184,37 @@ export class PayPalSandboxProvider implements PaymentProvider {
     }
   }
 
+  async refundCapture(input: RefundPaymentCaptureInput): Promise<PaymentRefund> {
+    if (!input.requestId.trim()) throw new Error("REQUEST_ID_REQUIRED");
+    if (!input.providerCaptureId.trim()) throw new Error("CAPTURE_ID_REQUIRED");
+    if (!Number.isSafeInteger(input.amountMinor) || input.amountMinor <= 0) throw new Error("INVALID_INTEGER_MINOR_AMOUNT");
+    if (input.currency !== "USD") throw new Error("UNSUPPORTED_CURRENCY");
+    const payload = await this.requestJson(
+      "CAPTURE_REFUND",
+      `/v2/payments/captures/${encodeURIComponent(input.providerCaptureId)}/refund`,
+      {
+        method: "POST",
+        headers: { "PayPal-Request-Id": input.requestId, Prefer: "return=representation" },
+        body: JSON.stringify({
+          amount: { currency_code: input.currency, value: formatPayPalAmount(money(input.amountMinor)) },
+          custom_id: input.customId,
+          note_to_payer: "RecoveryLoop sandbox resolution",
+        }),
+      },
+    );
+    return this.toPaymentRefund(refundSchema.parse(payload), input.providerCaptureId, null);
+  }
+
+  async getRefund(providerRefundId: string): Promise<PaymentRefund | null> {
+    try {
+      const payload = await this.requestJson("REFUND_READ", `/v2/payments/refunds/${encodeURIComponent(providerRefundId)}`);
+      return this.toPaymentRefund(refundSchema.parse(payload), "", new Date(this.now()).toISOString());
+    } catch (error) {
+      if (error instanceof PayPalProviderError && error.status === 404) return null;
+      throw error;
+    }
+  }
+
   async verifyWebhook(input: VerifyPayPalWebhookInput): Promise<boolean> {
     const payload = await this.requestJson("WEBHOOK_VERIFY", "/v1/notifications/verify-webhook-signature", {
       method: "POST",
@@ -221,6 +268,24 @@ export class PayPalSandboxProvider implements PaymentProvider {
       amountMinor: amount.minor,
       currency: amount.currency,
       status: mapCaptureStatus(capture.status),
+      sourceTier: "PROVIDER_VERIFIED",
+      synthetic: false,
+      verifiedAt,
+    };
+  }
+
+  private toPaymentRefund(
+    refund: z.infer<typeof refundSchema>,
+    providerCaptureId: string,
+    verifiedAt: string | null,
+  ): PaymentRefund {
+    const amount = parsePayPalAmount(refund.amount.value, refund.amount.currency_code);
+    return {
+      providerRefundId: refund.id,
+      providerCaptureId,
+      amountMinor: amount.minor,
+      currency: amount.currency,
+      status: mapRefundStatus(refund.status),
       sourceTier: "PROVIDER_VERIFIED",
       synthetic: false,
       verifiedAt,

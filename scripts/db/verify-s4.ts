@@ -73,7 +73,8 @@ try {
   const allocations = await client<{ fixture_key: string; state: string; amount_minor: number }[]>`select o.fixture_key, oa.state, oa.amount_minor
     from obligation_allocations oa
     join obligations ob on ob.id = oa.obligation_id
-    join orders o on o.id = ob.order_id order by o.fixture_key`;
+    join orders o on o.id = ob.order_id
+    where o.fixture_key in ('F03', 'F04') order by o.fixture_key`;
   if (
     allocations.length !== 2
     || allocations[0]?.fixture_key !== "F03" || allocations[0].state !== "COMPLETED" || allocations[0].amount_minor !== 10_000

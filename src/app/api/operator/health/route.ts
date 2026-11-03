@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         status: "ready",
-        scope: "s5-complete",
+        scope: "s6-complete",
         role: authorization.role,
         providers: {
           database: "configured",

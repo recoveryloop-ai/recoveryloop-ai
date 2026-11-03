@@ -82,6 +82,46 @@ describe("PayPal sandbox provider", () => {
     await expect(provider.getCapture(`CAP-${status}`)).resolves.toMatchObject({ status });
   });
 
+  it("posts an exact partial refund with a stable request ID and verifies it by GET", async () => {
+    const refund = { id: "REFUND-123", status: "COMPLETED", amount: { currency_code: "USD", value: "100.00" } };
+    const { provider, fetchMock } = providerWith([
+      jsonResponse(token),
+      jsonResponse(refund, 201),
+      jsonResponse(refund),
+    ]);
+    const initial = await provider.refundCapture({
+      requestId: "33333333-3333-4333-8333-333333333333",
+      providerCaptureId: "CAPTURE-123",
+      amountMinor: 10_000,
+      currency: "USD",
+      customId: "44444444-4444-4444-8444-444444444444",
+    });
+    const verified = await provider.getRefund(initial.providerRefundId);
+    expect(initial).toMatchObject({ providerRefundId: "REFUND-123", amountMinor: 10_000, status: "COMPLETED" });
+    expect(verified).toMatchObject({ providerRefundId: "REFUND-123", amountMinor: 10_000, status: "COMPLETED" });
+    const refundCall = fetchMock.mock.calls[1];
+    expect(String(refundCall?.[0])).toContain("/v2/payments/captures/CAPTURE-123/refund");
+    expect(refundCall?.[1]?.headers).toMatchObject({
+      "PayPal-Request-Id": "33333333-3333-4333-8333-333333333333",
+      Prefer: "return=representation",
+    });
+    expect(JSON.parse(String(refundCall?.[1]?.body))).toEqual({
+      amount: { currency_code: "USD", value: "100.00" },
+      custom_id: "44444444-4444-4444-8444-444444444444",
+      note_to_payer: "RecoveryLoop sandbox resolution",
+    });
+  });
+
+  it.each(["PENDING", "FAILED", "CANCELLED", "SOMETHING_NEW"])("maps refund status %s without assuming success", async (status) => {
+    const { provider } = providerWith([
+      jsonResponse(token),
+      jsonResponse({ id: `REF-${status}`, status, amount: { currency_code: "USD", value: "100.00" } }),
+    ]);
+    await expect(provider.getRefund(`REF-${status}`)).resolves.toMatchObject({
+      status: status === "SOMETHING_NEW" ? "UNKNOWN" : status,
+    });
+  });
+
   it("classifies 4xx as definite and 5xx as retryable without leaking response bodies", async () => {
     const definite = providerWith([jsonResponse(token), jsonResponse({ name: "UNPROCESSABLE_ENTITY" }, 422, { "paypal-debug-id": "debug-1" })]).provider;
     await expect(definite.createOrder({ requestId: "req", localOrderId: "local", amountMinor: 100, currency: "USD" }))

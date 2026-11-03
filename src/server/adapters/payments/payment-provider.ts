@@ -7,6 +7,7 @@ export type PaymentOrderStatus =
   | "PAYER_ACTION_REQUIRED"
   | "UNKNOWN";
 export type PaymentCaptureStatus = "COMPLETED" | "PENDING" | "DECLINED" | "DENIED" | "UNKNOWN";
+export type PaymentRefundStatus = "COMPLETED" | "PENDING" | "FAILED" | "CANCELLED" | "UNKNOWN";
 
 export type PaymentLineItem = {
   name: string;
@@ -53,6 +54,25 @@ export type PaymentCapture = {
   verifiedAt: string | null;
 };
 
+export type RefundPaymentCaptureInput = {
+  requestId: string;
+  providerCaptureId: string;
+  amountMinor: number;
+  currency: "USD";
+  customId: string;
+};
+
+export type PaymentRefund = {
+  providerRefundId: string;
+  providerCaptureId: string;
+  amountMinor: number;
+  currency: "USD";
+  status: PaymentRefundStatus;
+  sourceTier: PaymentSourceTier;
+  synthetic: boolean;
+  verifiedAt: string | null;
+};
+
 export type VerifyPayPalWebhookInput = {
   transmissionId: string;
   transmissionTime: string;
@@ -70,5 +90,7 @@ export interface PaymentProvider {
   getOrder(providerOrderId: string): Promise<PaymentOrder | null>;
   captureOrder(input: CapturePaymentOrderInput): Promise<PaymentCapture>;
   getCapture(providerCaptureId: string): Promise<PaymentCapture | null>;
+  refundCapture(input: RefundPaymentCaptureInput): Promise<PaymentRefund>;
+  getRefund(providerRefundId: string): Promise<PaymentRefund | null>;
   verifyWebhook(input: VerifyPayPalWebhookInput): Promise<boolean>;
 }

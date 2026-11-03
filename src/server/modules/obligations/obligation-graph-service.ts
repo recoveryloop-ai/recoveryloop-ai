@@ -319,6 +319,7 @@ export async function readCaseObligation(
       completed_capture_minor: number;
       completed_allocated_minor: number;
       reserved_allocated_minor: number;
+      unknown_payment_count: number;
       unallocated_completed_refund_minor: number;
       unallocated_pending_refund_minor: number;
     }[]>`select o.fixture_key as fixture_id, o.id as order_id, oi.id as item_id,
@@ -328,7 +329,13 @@ export async function readCaseObligation(
         oi.shipping_allocation_minor as shipping_minor,
         coalesce((select sum(c.captured_minor)::int from captures c where c.order_id = o.id and c.status = 'COMPLETED'), 0) as completed_capture_minor,
         coalesce((select sum(oa.amount_minor)::int from obligation_allocations oa where oa.obligation_id = ob.id and oa.state = 'COMPLETED'), 0) as completed_allocated_minor,
-        coalesce((select sum(oa.amount_minor)::int from obligation_allocations oa where oa.obligation_id = ob.id and oa.state = 'RESERVED'), 0) as reserved_allocated_minor,
+        coalesce((select sum(oa.amount_minor)::int from obligation_allocations oa where oa.obligation_id = ob.id and oa.state = 'RESERVED'), 0)
+          + coalesce((select sum(p.amount_minor)::int from actions a join proposals p on p.id = a.proposal_id
+            where a.obligation_id = ob.id and a.state in ('APPROVED', 'RESERVED', 'EXECUTING', 'PENDING', 'UNKNOWN')), 0)
+          as reserved_allocated_minor,
+        coalesce((select count(*)::int from obligation_allocations oa where oa.obligation_id = ob.id and oa.state = 'RESERVED'), 0)
+          + coalesce((select count(*)::int from actions a where a.obligation_id = ob.id and a.state in ('PENDING', 'UNKNOWN')), 0)
+          as unknown_payment_count,
         coalesce((select sum(greatest(0, r.amount_minor - coalesce(a.allocated_minor, 0)))::int
           from refunds r join captures c on c.id = r.capture_id
           left join lateral (select sum(oa.amount_minor)::int as allocated_minor from obligation_allocations oa where oa.refund_id = r.id) a on true
@@ -372,7 +379,7 @@ export async function readCaseObligation(
       requestedMinor: record.unit_minor * record.quantity + record.tax_minor + record.shipping_minor,
       evidenceIds: evidence.map((item) => item.id),
       evidenceHash,
-      unknownPaymentOutcome: record.reserved_allocated_minor > 0,
+      unknownPaymentOutcome: record.unknown_payment_count > 0,
     });
   } finally {
     await client.end();

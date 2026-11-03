@@ -2,7 +2,7 @@
 
 **Total 70 hours.** Use the comprehensive acceptance tests and Codex prompts in `MASTER_TECHNICAL_BLUEPRINT.md` Section 12. These sprint durations are planning targets, not proof of completion. Section 17 defines public judge behavior and financial-action security; apply it to every sprint.
 
-**Current checkpoint:** S0-S5 and pre-S4 deployment hardening complete. S6 is next but is not authorized until the owner explicitly approves it.
+**Current checkpoint:** S0-S6 and pre-S4 deployment hardening complete. S7 is next but is not authorized until the owner explicitly approves it.
 
 | Sprint | Target hours | Non-negotiable exit gate |
 |---|---:|---|

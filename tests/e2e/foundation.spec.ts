@@ -89,3 +89,37 @@ test("anonymous visitors cannot spend AI quota", async ({ request }) => {
   expect(response.status()).toBe(401);
   await expect(response.json()).resolves.toMatchObject({ code: "AUTHENTICATION_REQUIRED", retryable: false });
 });
+
+test("anonymous visitors cannot propose, approve, execute, or reconcile refunds", async ({ request }) => {
+  const id = "11111111-1111-4111-8111-111111111111";
+  const attempts = [
+    ["/api/cases/RG-2048/proposals", { mode: "deterministic" }],
+    [`/api/proposals/${id}/approve`, { snapshot_hash: "a".repeat(64), confirmation: "REFUND $100.00 IN SANDBOX" }],
+    [`/api/actions/${id}/execute`, { confirmation: "EXECUTE SANDBOX REFUND" }],
+    [`/api/actions/${id}/reconcile`, { mode: "provider_readback" }],
+  ] as const;
+  for (const [path, data] of attempts) {
+    const response = await request.post(path, { data, headers: { origin: "https://attacker.invalid" } });
+    expect(response.status()).toBe(401);
+    await expect(response.json()).resolves.toMatchObject({ code: "AUTHENTICATION_REQUIRED", retryable: false });
+  }
+});
+
+test("S6 certificate is read-only, redacted, and provider-verified", async ({ request }) => {
+  test.skip(!process.env.DATABASE_URL, "The public CI job intentionally has no database credential.");
+  const response = await request.get("/api/cases/RG-2052/certificate");
+  expect(response.status()).toBe(200);
+  await expect(response.json()).resolves.toMatchObject({
+    caseRef: "RG-2052",
+    provider: "PAYPAL_SANDBOX",
+    captureAmountMinor: 25_000,
+    captureStatus: "COMPLETED",
+    refundAmountMinor: 10_000,
+    refundStatus: "COMPLETED",
+    obligationBalanceMinor: 0,
+    captureId: expect.stringMatching(/…/),
+    refundId: expect.stringMatching(/…/),
+    certificateHash: expect.stringMatching(/^[a-f0-9]{64}$/),
+    disclaimer: expect.stringContaining("not a legally binding certificate"),
+  });
+});

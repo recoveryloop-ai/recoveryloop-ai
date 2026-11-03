@@ -319,11 +319,82 @@ export const investigations = pgTable("investigations", {
   check("investigations_tokens_nonnegative", sql`${table.promptTokens} >= 0 and ${table.completionTokens} >= 0`),
 ]);
 
+export const proposals = pgTable("proposals", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  caseId: uuid("case_id").notNull().references(() => cases.id, { onDelete: "restrict" }),
+  obligationId: uuid("obligation_id").notNull().references(() => obligations.id, { onDelete: "restrict" }),
+  kind: varchar("kind", { length: 32 }).notNull(),
+  amountMinor: integer("amount_minor").notNull(),
+  currency: varchar("currency", { length: 3 }).notNull().default("USD"),
+  evidenceHash: varchar("evidence_hash", { length: 64 }).notNull(),
+  policyVersionId: uuid("policy_version_id").notNull().references(() => policyVersions.id, { onDelete: "restrict" }),
+  snapshotHash: varchar("snapshot_hash", { length: 64 }).notNull(),
+  snapshotJson: jsonb("snapshot_json").notNull(),
+  status: varchar("status", { length: 16 }).notNull().default("PROPOSED"),
+  approvedBy: uuid("approved_by").references(() => users.id, { onDelete: "restrict" }),
+  approvedAt: timestamp("approved_at", { withTimezone: true }),
+  createdAt,
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index("proposals_case_created_idx").on(table.caseId, table.createdAt),
+  index("proposals_obligation_idx").on(table.obligationId),
+  index("proposals_policy_version_idx").on(table.policyVersionId),
+  uniqueIndex("proposals_snapshot_unique").on(table.snapshotHash),
+  check("proposals_kind_valid", sql`${table.kind} = 'PAYPAL_REFUND'`),
+  check("proposals_amount_positive", sql`${table.amountMinor} > 0`),
+  check("proposals_currency_usd", sql`${table.currency} = 'USD'`),
+  check("proposals_hashes_valid", sql`length(${table.evidenceHash}) = 64 and length(${table.snapshotHash}) = 64`),
+  check("proposals_status_valid", sql`${table.status} in ('PROPOSED', 'APPROVED', 'BLOCKED', 'REJECTED')`),
+]);
+
+export const actions = pgTable("actions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  proposalId: uuid("proposal_id").notNull().references(() => proposals.id, { onDelete: "restrict" }),
+  obligationId: uuid("obligation_id").notNull().references(() => obligations.id, { onDelete: "restrict" }),
+  approvedBy: uuid("approved_by").notNull().references(() => users.id, { onDelete: "restrict" }),
+  approvedAt: timestamp("approved_at", { withTimezone: true }).notNull(),
+  requestId: uuid("request_id").notNull(),
+  state: varchar("state", { length: 24 }).notNull(),
+  providerResourceId: varchar("provider_resource_id", { length: 128 }),
+  providerResponseHash: varchar("provider_response_hash", { length: 64 }),
+  failureCode: varchar("failure_code", { length: 80 }),
+  executedAt: timestamp("executed_at", { withTimezone: true }),
+  verifiedAt: timestamp("verified_at", { withTimezone: true }),
+  createdAt,
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("actions_proposal_unique").on(table.proposalId),
+  uniqueIndex("actions_request_unique").on(table.requestId),
+  uniqueIndex("actions_provider_resource_unique").on(table.providerResourceId),
+  uniqueIndex("actions_active_obligation_unique").on(table.obligationId)
+    .where(sql`${table.state} in ('APPROVED', 'RESERVED', 'EXECUTING', 'PENDING', 'UNKNOWN')`),
+  index("actions_obligation_created_idx").on(table.obligationId, table.createdAt),
+  index("actions_state_updated_idx").on(table.state, table.updatedAt),
+  index("actions_approved_by_idx").on(table.approvedBy),
+  check("actions_state_valid", sql`${table.state} in ('APPROVED', 'RESERVED', 'EXECUTING', 'COMPLETED', 'PENDING', 'UNKNOWN', 'FAILED', 'REJECTED', 'CANCELLED', 'BLOCKED', 'VERIFIED_CLOSED')`),
+  check("actions_provider_hash_valid", sql`${table.providerResponseHash} is null or length(${table.providerResponseHash}) = 64`),
+]);
+
+export const certificates = pgTable("certificates", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  caseId: uuid("case_id").notNull().references(() => cases.id, { onDelete: "restrict" }),
+  actionId: uuid("action_id").notNull().references(() => actions.id, { onDelete: "restrict" }),
+  certificateHash: varchar("certificate_hash", { length: 64 }).notNull(),
+  payloadJson: jsonb("payload_json").notNull(),
+  createdAt,
+}, (table) => [
+  uniqueIndex("certificates_action_unique").on(table.actionId),
+  uniqueIndex("certificates_hash_unique").on(table.certificateHash),
+  index("certificates_case_created_idx").on(table.caseId, table.createdAt),
+  check("certificates_hash_valid", sql`length(${table.certificateHash}) = 64`),
+]);
+
 export const auditEvents = pgTable("audit_events", {
   id: uuid("id").primaryKey().defaultRandom(),
   merchantId: uuid("merchant_id").notNull().references(() => merchants.id, { onDelete: "restrict" }),
   actor: varchar("actor", { length: 160 }).notNull(),
   caseId: uuid("case_id").references(() => cases.id, { onDelete: "restrict" }),
+  actionId: uuid("action_id").references(() => actions.id, { onDelete: "restrict" }),
   eventType: varchar("event_type", { length: 80 }).notNull(),
   detailsHash: varchar("details_hash", { length: 64 }).notNull(),
   details: jsonb("details").notNull(),
@@ -331,6 +402,7 @@ export const auditEvents = pgTable("audit_events", {
 }, (table) => [
   index("audit_events_merchant_idx").on(table.merchantId),
   index("audit_events_case_idx").on(table.caseId),
+  index("audit_events_action_idx").on(table.actionId),
 ]);
 
 export const webhookInbox = pgTable("webhook_inbox", {

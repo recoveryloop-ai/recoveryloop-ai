@@ -22,6 +22,7 @@
     "db:verify:s3": "tsx scripts/db/verify-s3.ts",
     "db:verify:s4": "tsx scripts/db/verify-s4.ts",
     "db:verify:s5": "tsx scripts/db/verify-s5.ts",
+    "db:verify:s6": "tsx scripts/db/verify-s6.ts",
     "smoke:all": "tsx scripts/smoke/all.ts",
     "smoke:easypost": "tsx scripts/smoke/easypost.ts",
     "smoke:zai": "tsx scripts/smoke/zai.ts",
@@ -32,6 +33,8 @@
     "s3:ingest:f02": "tsx scripts/s3/ingest-f02.ts",
     "s4:reconcile": "tsx scripts/s4/reconcile-fixtures.ts",
     "s5:investigate:f02": "tsx scripts/s5/investigate-f02.ts",
+    "s6:prepare": "tsx scripts/s6/prepare-real-refund-case.ts",
+    "s6:execute": "tsx scripts/s6/execute-real-refund.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit"
