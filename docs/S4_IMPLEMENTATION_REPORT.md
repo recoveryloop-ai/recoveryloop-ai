@@ -50,6 +50,10 @@ The Supabase management connector remains scoped to the former project owner and
 
 Production deployment `dpl_3TsJqPDtGJwBZZqaUmYDCsap7PZH` reached `READY` and is aliased to `https://recoveryloop-ai.vercel.app`.
 
+## Failing-check disclosure
+
+The first GitHub CI run attempted the database-backed simulator browser test on the intentionally credential-free public runner and received a connection-refused 500. The test now skips only when `DATABASE_URL` is absent; deterministic unit coverage remains active in public CI, while both local and deployed suites execute the real database-backed route.
+
 ## Gate
 
 S4 is complete. S5 has not started and requires explicit owner approval.

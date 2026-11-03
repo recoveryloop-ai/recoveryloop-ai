@@ -99,6 +99,14 @@ try {
       and grantee in ('anon', 'authenticated')`;
   if (grants?.count !== 0) throw new Error(`S4_PUBLIC_GRANTS_FOUND:${grants?.count}`);
 
+  const indexes = await client<{ indexname: string }[]>`select indexname from pg_indexes
+    where schemaname = 'public' and indexname in (
+      'graph_edges_semantic_unique', 'graph_edges_case_idx', 'graph_edges_evidence_idx',
+      'graph_edges_from_idx', 'graph_edges_to_idx',
+      'obligation_allocations_obligation_refund_unique', 'obligation_allocations_refund_idx'
+    ) order by indexname`;
+  if (indexes.length !== 7) throw new Error(`S4_INDEX_INVARIANT_FAILED:${JSON.stringify(indexes)}`);
+
   console.log(JSON.stringify({
     status: "PASS",
     operation: "verify-s4",
@@ -117,6 +125,7 @@ try {
     providerWrites: 0,
     rlsTables: newTables.length,
     anonAuthenticatedGrants: grants.count,
+    requiredIndexes: indexes.length,
   }));
 } finally {
   await client.end();
