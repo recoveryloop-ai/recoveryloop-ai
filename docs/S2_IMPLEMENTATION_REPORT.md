@@ -28,7 +28,7 @@
 - Buyer approval with a legitimate sandbox Personal account: PASS.
 - Capture POST and independent capture GET/read-back: PASS; redacted capture `4YP4…992X`, status `COMPLETED`.
 - Exact captured amount and currency: PASS — `25000` cents, `USD`.
-- Durable receipt: PASS — order status `COMPLETED`, capture status `COMPLETED`, `verified_at` present, and PayPal order/capture IDs distinct.
+- Durable receipt: PASS — local order status `PAID`, PayPal order and capture status `COMPLETED`, `verified_at` present, and PayPal order/capture IDs distinct.
 - Duplicate attempt: PASS — two protected replays returned HTTP 303 to the same receipt; the database still contains exactly one PayPal capture row and no second provider mutation was issued.
 
 ## Automated checks
@@ -39,7 +39,7 @@
 - Anonymous direct POST to create or capture returns `401` before provider traffic.
 - Unconfigured webhook endpoint returns `503` and performs no mutation.
 - Typecheck, lint, production build, database verification and dependency audit: PASS; `npm audit --audit-level=high` found 0 vulnerabilities.
-- Supabase: 14 public tables have RLS; `paypal_orders` and `webhook_inbox` grant zero CRUD privileges to `anon` and `authenticated`.
+- Supabase: all 13 application tables have RLS; `paypal_orders` and `webhook_inbox` grant zero CRUD privileges to `anon` and `authenticated`.
 
 | Command | Result |
 |---|---|
@@ -67,3 +67,33 @@
 - `PAYPAL_WEBHOOK_ID` remains unconfigured because no public callback URL exists yet. The webhook endpoint is intentionally fail-closed; register the sandbox webhook during the deployment sprint before relying on provider delivery.
 - Rotate credentials previously pasted into chat before public deployment, and store replacements only in local/hosting secret storage.
 - Do not begin S3 without explicit owner approval.
+
+## S0–S2 remediation gate — 3 November 2026
+
+The owner authorized a complete S0–S2 review and repair before S3. No S3 functionality and no new PayPal capture were added.
+
+### Repairs completed
+
+- Capture now fails closed before provider mutation unless the independently read PayPal order matches the locked local order ID, exact integer-cent total, USD currency and `PROVIDER_VERIFIED` source tier.
+- The authenticated receipt now normalizes PostgreSQL string timestamps, displays the persisted captured amount, and returns 404 for malformed UUIDs instead of surfacing a database 500.
+- A Next.js 16 proxy refreshes Supabase sessions and forwards the authentication library's private/no-store headers when cookies rotate.
+- Evidence rows now include mandatory provider and synthetic flag fields, and source tiers match the blueprint vocabulary. The live F02 order/case contract is aligned to `RG-2048` and policy `v1`.
+- Sign-out uses the validated public origin behind proxies, clears only the current browser session, and returns structured origin failures with correlation IDs. Baseline CSP, frame, MIME-sniffing, referrer, permissions and HSTS headers are configured.
+- Playwright covers production rendering, responsive desktop/mobile behavior, headers, untrusted sign-out denial, real operator login, the existing provider-verified receipt, and malformed receipt identifiers.
+- A live-safe S2 database verifier proves receipt invariants, webhook uniqueness inside a forced rollback, all 13 application tables with RLS, zero `anon`/`authenticated` table grants, and a non-superuser/non-bypass application role.
+
+### Final verification
+
+| Command | Result |
+|---|---|
+| `npm run db:verify:s1` | PASS — 5 exact fixtures; F02 order and case `RG-2048`; 4 provenance-complete evidence rows |
+| `npm run db:verify:s2` | PASS — one matching capture; webhook dedup rollback; 13 RLS tables; 0 public-role grants |
+| `npm run smoke:all` | PASS — PayPal create/read only, EasyPost test, Z.ai GLM 5.3, Supabase Postgres 17.11 |
+| `npm run typecheck` | PASS |
+| `npm run lint` | PASS |
+| `npm test` | PASS — 44 tests across 13 files |
+| `npm run build` | PASS |
+| `npm run test:e2e` | PASS — 8 tests across desktop and mobile Chromium |
+| `npm audit --audit-level=high` | PASS — 0 vulnerabilities |
+
+The only deferred provider item remains `PAYPAL_WEBHOOK_ID`: the endpoint is intentionally fail-closed until a public HTTPS callback exists. Periodic/manual provider read-back remains the S2 reconciliation path. This does not block S3.

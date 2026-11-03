@@ -4,6 +4,7 @@ import { createDatabase } from "../../db/client";
 import { PayPalProviderError } from "../../adapters/payments/paypal-sandbox-provider";
 import type { PaymentCapture, PaymentProvider } from "../../adapters/payments/payment-provider";
 import { AppError } from "../../http/app-error";
+import { toIsoTimestamp } from "../../../shared/timestamp";
 import { buildStaticCart } from "../commerce/catalog";
 import { decideCapture } from "./capture-guard";
 
@@ -31,9 +32,21 @@ function hashJson(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
 
-export function toIsoTimestamp(value: Date | string | null): string | null {
-  if (value === null) return null;
-  return new Date(value).toISOString();
+export function assertCapturePreflight(
+  providerOrder: Awaited<ReturnType<PaymentProvider["getOrder"]>>,
+  expectedLocalOrderId: string,
+  expectedAmountMinor: number,
+): asserts providerOrder is NonNullable<typeof providerOrder> {
+  if (!providerOrder) throw new AppError("PAYPAL_ORDER_NOT_FOUND", 404);
+  if (
+    providerOrder.localOrderId !== expectedLocalOrderId ||
+    providerOrder.amountMinor !== expectedAmountMinor ||
+    providerOrder.currency !== "USD" ||
+    providerOrder.synthetic ||
+    providerOrder.sourceTier !== "PROVIDER_VERIFIED"
+  ) {
+    throw new AppError("PAYPAL_ORDER_BINDING_MISMATCH", 409);
+  }
 }
 
 export class CheckoutService {
@@ -153,6 +166,7 @@ export class CheckoutService {
           for update of po`;
         if (!mapping) throw new AppError("PAYPAL_ORDER_NOT_FOUND", 404);
         localOrderId = mapping.local_order_id;
+        assertCapturePreflight(providerOrder, mapping.local_order_id, mapping.total_minor);
 
         const [existingCapture] = await sql<{
           provider_capture_id: string;

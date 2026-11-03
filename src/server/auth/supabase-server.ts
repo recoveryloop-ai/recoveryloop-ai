@@ -24,8 +24,8 @@ export async function createSupabaseServerClient() {
               cookieStore.set(name, value, options);
             }
           } catch {
-            // A Server Component cannot write cookies. Route handlers can, and
-            // the eventual auth proxy will own refresh writes in the login sprint.
+            // Server Components cannot write cookies. The root proxy refreshes
+            // sessions and forwards the required no-cache response headers.
           }
         },
       },

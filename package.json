@@ -18,6 +18,7 @@
     "db:down:s1": "tsx scripts/db/down-s1.ts",
     "db:seed:s1": "tsx scripts/db/seed-s1.ts",
     "db:verify:s1": "tsx scripts/db/verify-s1.ts",
+    "db:verify:s2": "tsx scripts/db/verify-s2.ts",
     "smoke:all": "tsx scripts/smoke/all.ts",
     "smoke:easypost": "tsx scripts/smoke/easypost.ts",
     "smoke:zai": "tsx scripts/smoke/zai.ts",
@@ -26,6 +27,7 @@
     "smoke:paypal:s2:capture": "tsx scripts/smoke/paypal-s2-capture.ts",
     "smoke:supabase": "tsx scripts/smoke/supabase.ts",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -43,6 +45,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "26.6.6",
     "@types/react": "19.3.0",

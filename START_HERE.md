@@ -11,7 +11,7 @@ Read in this order:
 
 ## Immediately next: Sprint S3 only
 
-**Checkpoint:** S0, S1 and S2 are complete. A real PayPal sandbox `$250.00` capture was independently read back and persisted on 3 November 2026; duplicate capture replay returned the same single receipt. EasyPost test, Z.ai and Supabase readiness remain verified. Never send keys in chat or commit `.env.local`.
+**Checkpoint:** S0, S1 and S2 are complete and the cross-sprint remediation gate passes. A real PayPal sandbox `$250.00` capture was independently read back and persisted on 3 November 2026; duplicate capture replay retained the same single receipt. Payment binding preflight, authenticated receipt rendering, Supabase session refresh, evidence provenance, browser security headers, desktop/mobile Playwright coverage, EasyPost test, Z.ai and Supabase readiness are verified. Never send keys in chat or commit `.env.local`.
 
 **Coding-agent S3 assignment:** Implement carrier evidence ingestion and deterministic case rules only. Ingest EasyPost test events behind the carrier adapter, normalize timestamps/status/provenance, make replay idempotent, and prove that the returned-to-sender F02 scenario creates the correct case without altering the PayPal ledger. Do not begin S4 behavior.
 

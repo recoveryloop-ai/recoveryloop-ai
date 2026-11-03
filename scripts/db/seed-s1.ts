@@ -76,7 +76,7 @@ try {
 
     const fixtureOrders = [
       { id: ids.orders[0], key: "F01", ref: "DEMO-F01", total: 15_000, status: "DELIVERED" },
-      { id: ids.orders[1], key: "F02", ref: "DEMO-F02", total: 25_000, status: "PARTIALLY_RETURNED" },
+      { id: ids.orders[1], key: "F02", ref: "RG-2048", total: 25_000, status: "PARTIALLY_RETURNED" },
       { id: ids.orders[2], key: "F03", ref: "DEMO-F03", total: 10_000, status: "RETURNED" },
       { id: ids.orders[3], key: "F04", ref: "DEMO-F04", total: 10_000, status: "RETURNED" },
       { id: ids.orders[4], key: "F05", ref: "DEMO-F05", total: 3_000, status: "RETURNED" },
@@ -84,7 +84,7 @@ try {
     for (const order of fixtureOrders) {
       await sql`insert into orders (id, merchant_id, external_ref, fixture_key, currency, total_minor, status, policy_version_id)
         values (${order.id}, ${ids.merchant}, ${order.ref}, ${order.key}, 'USD', ${order.total}, ${order.status}, ${ids.policy})
-        on conflict (id) do update set total_minor = excluded.total_minor, status = excluded.status`;
+        on conflict (id) do update set external_ref = excluded.external_ref, total_minor = excluded.total_minor, status = excluded.status`;
     }
 
     const fixtureItems = [
@@ -117,10 +117,10 @@ try {
       on conflict (id) do update set status = excluded.status`;
 
     const exceptionFixtures = [
-      { index: 0, key: "F02", orderId: ids.orders[1], itemId: ids.items[2], amount: 10_000, obligation: "OPEN" },
-      { index: 1, key: "F03", orderId: ids.orders[2], itemId: ids.items[3], amount: 10_000, obligation: "SATISFIED" },
-      { index: 2, key: "F04", orderId: ids.orders[3], itemId: ids.items[4], amount: 10_000, obligation: "PENDING" },
-      { index: 3, key: "F05", orderId: ids.orders[4], itemId: ids.items[5], amount: 3_000, obligation: "OPEN" },
+      { index: 0, key: "F02", caseRef: "RG-2048", orderId: ids.orders[1], itemId: ids.items[2], amount: 10_000, obligation: "OPEN" },
+      { index: 1, key: "F03", caseRef: "RG-2049", orderId: ids.orders[2], itemId: ids.items[3], amount: 10_000, obligation: "SATISFIED" },
+      { index: 2, key: "F04", caseRef: "RG-2050", orderId: ids.orders[3], itemId: ids.items[4], amount: 10_000, obligation: "PENDING" },
+      { index: 3, key: "F05", caseRef: "RG-2051", orderId: ids.orders[4], itemId: ids.items[5], amount: 3_000, obligation: "OPEN" },
     ] as const;
     for (const fixture of exceptionFixtures) {
       const caseId = ids.cases[fixture.index];
@@ -128,15 +128,16 @@ try {
       const evidenceId = ids.evidence[fixture.index];
       if (!caseId || !obligationId || !evidenceId) throw new Error("FIXTURE_INDEX_MISMATCH");
       await sql`insert into cases (id, order_id, external_ref, kind, status, severity)
-        values (${caseId}, ${fixture.orderId}, ${`RG-${2046 + fixture.index}`}, 'DELIVERY_FAILURE', 'OPEN', 'MEDIUM')
-        on conflict (id) do update set status = excluded.status`;
+        values (${caseId}, ${fixture.orderId}, ${fixture.caseRef}, 'DELIVERY_FAILURE', 'OPEN', 'MEDIUM')
+        on conflict (id) do update set external_ref = excluded.external_ref, status = excluded.status`;
       await sql`insert into obligations (id, order_id, item_id, case_id, kind, reason_key, currency, entitled_minor, status, policy_version_id)
         values (${obligationId}, ${fixture.orderId}, ${fixture.itemId}, ${caseId}, 'CUSTOMER_REFUND', 'order-item:returned_to_sender', 'USD', ${fixture.amount}, ${fixture.obligation}, ${ids.policy})
         on conflict (id) do update set status = excluded.status`;
-      const evidencePayload = { fixture: fixture.key, event: "RETURNED_TO_SENDER", source: "synthetic-test" };
-      await sql`insert into evidence (id, case_id, source_tier, external_id, payload_hash, observed_at, redacted_json)
-        values (${evidenceId}, ${caseId}, 'SYNTHETIC_TEST', ${`${fixture.key}-RETURN-EVENT`}, ${hash(JSON.stringify(evidencePayload))}, now(), ${JSON.stringify(evidencePayload)}::jsonb)
-        on conflict (id) do update set payload_hash = excluded.payload_hash`;
+      const evidencePayload = { fixture: fixture.key, event: "RETURNED_TO_SENDER", source: "fixture" };
+      await sql`insert into evidence (id, case_id, provider, source_tier, external_id, payload_hash, observed_at, synthetic_flag, redacted_json)
+        values (${evidenceId}, ${caseId}, 'FIXTURE', 'SYNTHETIC', ${`${fixture.key}-RETURN-EVENT`}, ${hash(JSON.stringify(evidencePayload))}, now(), true, ${JSON.stringify(evidencePayload)}::jsonb)
+        on conflict (id) do update set provider = excluded.provider, source_tier = excluded.source_tier,
+          payload_hash = excluded.payload_hash, synthetic_flag = excluded.synthetic_flag, redacted_json = excluded.redacted_json`;
       await sql`insert into audit_events (merchant_id, actor, case_id, event_type, details_hash, details)
         select ${ids.merchant}, 'seed:s1', ${caseId}, 'FIXTURE_SEEDED', ${hash(fixture.key)}, ${JSON.stringify({ fixture: fixture.key })}::jsonb
         where not exists (select 1 from audit_events where case_id = ${caseId} and event_type = 'FIXTURE_SEEDED')`;

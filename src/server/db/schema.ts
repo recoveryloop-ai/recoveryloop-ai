@@ -175,15 +175,17 @@ export const obligations = pgTable("obligations", {
 export const evidence = pgTable("evidence", {
   id: uuid("id").primaryKey().defaultRandom(),
   caseId: uuid("case_id").notNull().references(() => cases.id, { onDelete: "restrict" }),
+  provider: varchar("provider", { length: 40 }).notNull(),
   sourceTier: varchar("source_tier", { length: 32 }).notNull(),
   externalId: varchar("external_id", { length: 160 }).notNull(),
   payloadHash: varchar("payload_hash", { length: 64 }).notNull(),
   observedAt: timestamp("observed_at", { withTimezone: true }).notNull(),
+  syntheticFlag: boolean("synthetic_flag").notNull().default(false),
   redactedJson: jsonb("redacted_json").notNull(),
   createdAt,
 }, (table) => [
   uniqueIndex("evidence_case_external_unique").on(table.caseId, table.externalId),
-  check("evidence_source_tier_valid", sql`${table.sourceTier} in ('PROVIDER_VERIFIED', 'MERCHANT_ATTESTED', 'SYNTHETIC_TEST')`),
+  check("evidence_source_tier_valid", sql`${table.sourceTier} in ('PROVIDER_VERIFIED', 'PROVIDER_TEST', 'MERCHANT_ATTESTED', 'SYNTHETIC', 'AI_DERIVED')`),
 ]);
 
 export const auditEvents = pgTable("audit_events", {
