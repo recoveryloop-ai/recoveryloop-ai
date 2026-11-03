@@ -24,7 +24,14 @@ export function routeErrorResponse(error: unknown): NextResponse {
       { status: 502, headers: { "Cache-Control": "private, no-store" } },
     );
   }
-  console.error("route_error", { correlationId, name: error instanceof Error ? error.name : "unknown" });
+  const providerCode = typeof error === "object" && error !== null && "code" in error && typeof error.code === "string"
+    ? error.code
+    : undefined;
+  console.error("route_error", {
+    correlationId,
+    name: error instanceof Error ? error.name : "unknown",
+    ...(providerCode ? { providerCode } : {}),
+  });
   return NextResponse.json(
     { code: "INTERNAL_ERROR", message: "The request could not be completed.", retryable: false, correlation_id: correlationId },
     { status: 500, headers: { "Cache-Control": "private, no-store" } },

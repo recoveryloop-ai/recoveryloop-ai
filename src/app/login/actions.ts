@@ -21,6 +21,7 @@ export async function loginAction(formData: FormData): Promise<void> {
     process.env.DEMO_OPERATOR_EMAIL ?? "",
   );
   if (!authorization.authorized) {
+    console.warn("operator_login_denied", { code: authorization.code });
     await supabase.auth.signOut();
     redirect("/login?error=forbidden");
   }
