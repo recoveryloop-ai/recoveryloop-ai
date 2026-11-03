@@ -33,6 +33,7 @@ test("untrusted signout request returns a structured denial", async ({ request }
 });
 
 test("S4 simulator is deterministic and cannot write to a provider", async ({ request }) => {
+  test.skip(!process.env.DATABASE_URL, "The public CI job intentionally has no database credential.");
   const eligible = await request.post("/api/cases/RG-2048/simulate", {
     data: { option: "ISSUE_POLICY_REFUND" },
   });
