@@ -39,6 +39,7 @@ Live database verification found 17 graph edges, zero missing evidence reference
 | `npm run lint` | PASS |
 | `npm run build` | PASS — simulator route included |
 | `npm run test:e2e` | PASS — 10 desktop/mobile/operator tests |
+| `PLAYWRIGHT_BASE_URL=https://recoveryloop-ai.vercel.app npm run test:e2e` | PASS — 10 deployed tests; public HTTP 200 |
 | `npm run db:verify:s1` | PASS — original fixtures and evidence contract preserved |
 | `npm run db:verify:s2` | PASS — verified capture preserved; 18 RLS tables; zero public grants |
 | `npm run db:verify:s3` | PASS — carrier ingestion and rollback proof preserved |
@@ -46,6 +47,8 @@ Live database verification found 17 graph edges, zero missing evidence reference
 | `npm run smoke:all` | PASS — PayPal, EasyPost, Z.ai and Supabase |
 
 The Supabase management connector remains scoped to the former project owner and cannot call advisors for this transferred project. Direct application-role checks prove RLS, grants, indexes, foreign keys and non-superuser/non-bypass behavior. This pre-existing connector limitation does not block S4.
+
+Production deployment `dpl_3TsJqPDtGJwBZZqaUmYDCsap7PZH` reached `READY` and is aliased to `https://recoveryloop-ai.vercel.app`.
 
 ## Gate
 
