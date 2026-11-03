@@ -9,11 +9,11 @@ Read in this order:
 4. `docs/JUDGE_DEMO_CONTRACT.md`, `docs/OPENAI_AGENT_CONTRACT.md`, `docs/PROVIDER_SETUP.md` — implementation specifics.
 5. `docs/SPRINT_EXECUTION.md` — checkpoint schedule and code-agent instructions.
 
-## Immediately next: Sprint S0 only
+## Immediately next: Sprint S3 only
 
-**Owner action:** Create legitimate PayPal Developer/Sandbox account. EasyPost test, Z.ai and Supabase readiness are verified; Vercel deployment waits for the application sprint. Never send keys in chat or commit `.env.local`.
+**Checkpoint:** S0, S1 and S2 are complete. A real PayPal sandbox `$250.00` capture was independently read back and persisted on 3 November 2026; duplicate capture replay returned the same single receipt. EasyPost test, Z.ai and Supabase readiness remain verified. Never send keys in chat or commit `.env.local`.
 
-**Coding-agent S0 assignment:** Create repository skeleton, build safe server-only provider checks for PayPal OAuth and a permitted order API call, EasyPost test tracker and Z.ai GLM structured response/tool capability; verify Supabase DB connection. A mock PayPal adapter may support local development but never satisfies the real PayPal S0 gate. Report actual response status/IDs with secrets redacted. Do not fabricate a successful smoke test or proceed past S0 if PayPal is inaccessible.
+**Coding-agent S3 assignment:** Implement carrier evidence ingestion and deterministic case rules only. Ingest EasyPost test events behind the carrier adapter, normalize timestamps/status/provenance, make replay idempotent, and prove that the returned-to-sender F02 scenario creates the correct case without altering the PayPal ledger. Do not begin S4 behavior.
 
 ## What judges can do
 
@@ -23,6 +23,6 @@ Open public production Vercel URL without login -> navigate six tabs -> run isol
 
 Official close as documented in blueprint: 13 November 2026 at 01:00 PKT; internal submission target 12 November 2026 at 18:00 PKT. 70-hour ceiling. Public repository, license, working app and YouTube video under three minutes are release criteria.
 
-## First Codex prompt
+## Next Codex prompt
 
-> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially sections 6, 9, 12, 17 and 18), and docs/PROVIDER_SETUP.md. Execute Sprint S0 ONLY. Do not start product UI or falsely claim external API proof. Create safe `.env.example`, provider smoke-test scripts and a redacted S0 report. Verify actual PayPal sandbox/OAuth, EasyPost test tracker, Z.ai GLM API and Supabase access where keys are provided. If the owner has not provisioned PayPal credentials, report the exact blocking input, not a fake PASS. Summarize changed files, commands, observed responses, tests and blockers.
+> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially S3 and sections 6, 9, 12, 17 and 18), docs/PROVIDER_SETUP.md, and all completed sprint reports. Execute Sprint S3 ONLY. Preserve the verified S2 PayPal ledger. Implement typed EasyPost test ingestion, normalized carrier events with explicit provenance, idempotent replay, and deterministic returned-to-sender case creation for F02. Run all required checks and report exact provider evidence, security invariants and blockers. Do not begin S4 without owner approval.

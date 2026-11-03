@@ -1,6 +1,6 @@
 # RecoveryLoop AI — Architecture and Codex Sprint Kit v1.0
 
-**Status:** Sprint S1 foundation complete locally and in the RecoveryLoop Supabase project. Prepared 31 October 2026 and initialized 1 November 2026, Asia/Karachi.
+**Status:** Sprint S2 complete: the RecoveryLoop Supabase ledger contains one real, independently verified PayPal sandbox capture, and duplicate capture replay is guarded. Sprint S3 is next but has not started. Updated 3 November 2026, Asia/Karachi.
 
 **Product:** AI merchant financial incident resolution with a Financial Obligation Graph, counterfactual resolution simulation, merchant-approved PayPal sandbox refund, verified receipt and isolated public evidence challenge.
 
@@ -80,4 +80,4 @@ npm test
 npm run build
 ```
 
-No credentials, production payment calls, completed PayPal calls, or commercial merchant records are contained in this repository. S1 fixtures are visibly synthetic and use deterministic local identifiers.
+No credentials, production payment calls, or commercial merchant records are contained in this repository. S1 fixtures are visibly synthetic and use deterministic local identifiers; S2 documentation contains only redacted PayPal sandbox evidence.

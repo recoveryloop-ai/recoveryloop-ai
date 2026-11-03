@@ -9,7 +9,7 @@
 | ADR-003 | USD, integer cents, no cross-currency refunds | ACCEPTED | Tests enforce this |
 | ADR-004 | Next.js/TypeScript modular monolith + Tailwind/shadcn | ACCEPTED | One public Vercel deployment |
 | ADR-005 | Supabase PostgreSQL with Drizzle migrations | ACCEPTED, VERIFIED S1 | RecoveryLoop project migrated, rolled back, re-applied, seeded and verified 1 November 2026 |
-| ADR-006 | Legitimately created PayPal Developer sandbox, no live payments | ACCEPTED, S0 VERIFIED; S2 BLOCKED | OAuth/order create/read passed; capture verification is blocked because sandbox buyer credentials / Developer Dashboard access are unavailable |
+| ADR-006 | Legitimately created PayPal Developer sandbox, no live payments | ACCEPTED, S2 VERIFIED | Real `$250.00` sandbox order approved, captured, independently read back and persisted 3 November 2026; duplicate replay retained exactly one capture row |
 | ADR-007 | EasyPost test mode + explicitly labeled synthetic overlays | ACCEPTED, S0 VERIFIED | EasyPost test API validated; carrier ingestion remains S3 |
 | ADR-008 | OpenAI API as AI investigator; read-only tools and structured responses | SUPERSEDED by ADR-015 | Owner changed provider on 1 November 2026 |
 | ADR-009 | Public live and navigable Vercel production URL | ACCEPTED | Owner already has Vercel; verify incognito judge access |
@@ -24,7 +24,7 @@
 ## Owner provisioning items
 
 - [x] Create PayPal Developer account and sandbox app; merchant API credentials verified.
-- [ ] Provide a sandbox personal/buyer login or Developer Dashboard access for the required S2 approval and capture proof.
+- [x] Provide sandbox Personal/buyer access and complete the required S2 approval and capture proof.
 - [x] Create EasyPost account and obtain **test** API key.
 - [x] Create the dedicated Supabase project and confirm PostgreSQL read/write access.
 - [x] Configure Supabase server-side Auth and the allowlisted operator during the authorized foundation sprint.

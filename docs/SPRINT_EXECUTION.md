@@ -2,6 +2,8 @@
 
 **Total 70 hours.** Use the comprehensive acceptance tests and Codex prompts in `MASTER_TECHNICAL_BLUEPRINT.md` Section 12. These sprint durations are planning targets, not proof of completion. Section 17 defines public judge behavior and financial-action security; apply it to every sprint.
 
+**Current checkpoint:** S0-S2 complete. S3 is the next authorized scope after explicit owner approval; it has not started.
+
 | Sprint | Target hours | Non-negotiable exit gate |
 |---|---:|---|
 | S0: Access and feasibility | 4 | PayPal real sandbox OAuth/order call; EasyPost test tracker; Z.ai GLM and DB status reported with evidence. |

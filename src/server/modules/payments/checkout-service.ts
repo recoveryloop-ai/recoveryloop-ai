@@ -31,6 +31,11 @@ function hashJson(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
 
+export function toIsoTimestamp(value: Date | string | null): string | null {
+  if (value === null) return null;
+  return new Date(value).toISOString();
+}
+
 export class CheckoutService {
   constructor(private readonly options: CheckoutServiceOptions) {}
 
@@ -154,7 +159,7 @@ export class CheckoutService {
           captured_minor: number;
           currency: "USD";
           status: PaymentCapture["status"];
-          verified_at: Date | null;
+          verified_at: Date | string | null;
         }[]>`select provider_capture_id, captured_minor, currency, status, verified_at
           from captures where order_id = ${localOrderId} and provider = 'PAYPAL' limit 1`;
         const decision = decideCapture(mapping.status, providerOrder.status, Boolean(existingCapture));
@@ -170,7 +175,7 @@ export class CheckoutService {
                 status: existingCapture.status,
                 sourceTier: "PROVIDER_VERIFIED" as const,
                 synthetic: false,
-                verifiedAt: existingCapture.verified_at?.toISOString() ?? null,
+                verifiedAt: toIsoTimestamp(existingCapture.verified_at),
               },
             },
             requestId: null,

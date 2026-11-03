@@ -53,8 +53,8 @@ The authorization code reads `app_metadata`, never user-editable `user_metadata`
 
 - GitHub, Supabase, and EasyPost access is individual and auditable.
 - Vercel dashboard team collaboration is not available on the no-cost Hobby plan. Until the deployment sprint, contributors work through GitHub and local development.
-- PayPal sandbox buyer approval requires a sandbox personal account. Client credentials alone cannot approve a checkout.
-- S2 is blocked until a legitimate PayPal sandbox buyer approves an order and the real capture/read-back evidence is persisted.
+- PayPal sandbox buyer approval requires a sandbox Personal account. Client credentials alone cannot approve a checkout.
+- S2 is complete with a legitimate PayPal sandbox capture/read-back persisted on 3 November 2026. Do not rerun a provider capture unless the active sprint explicitly requires it and the ledger/idempotency state has been checked first.
 - Do not begin a later sprint without owner approval recorded in the project workflow.
 
 ## Working agreement
