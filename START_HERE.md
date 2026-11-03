@@ -11,7 +11,7 @@ Read in this order:
 
 ## Immediately next: Sprint S4 only
 
-**Checkpoint:** S0 through S3 are complete. A real PayPal sandbox `$250.00` capture remains independently verified and unchanged. EasyPost test tracker events for F02 are normalized with `PROVIDER_TEST` provenance, the synthetic item mapping is explicit, replay inserts no duplicates, and deterministic rules R01/R02 connect the returned item to case `RG-2048`. Never send keys in chat or commit `.env.local`.
+**Checkpoint:** S0 through S3 and the pre-S4 deployment-hardening checkpoint are complete. The public production app is live at `https://recoveryloop-ai.vercel.app`, PayPal sandbox and EasyPost test webhooks are registered, signed EasyPost replay is deduplicated, and deployed desktop/mobile/operator tests pass. A real PayPal sandbox `$250.00` capture remains independently verified and unchanged. EasyPost test tracker events for F02 are normalized with `PROVIDER_TEST` provenance, the synthetic item mapping is explicit, replay inserts no duplicates, and deterministic rules R01/R02 connect the returned item to case `RG-2048`. Never send keys in chat or commit `.env.local`.
 
 **Coding-agent S4 assignment:** Implement the deterministic obligation graph and counterfactual simulator only. Preserve provider evidence and the verified payment ledger. Derive integer-cent obligations from policy plus stored facts, distinguish completed/pending/hypothetical amounts, block duplicate obligations, and prove F02/F03/F04 outcomes without AI or provider writes. Do not begin S5 behavior.
 
