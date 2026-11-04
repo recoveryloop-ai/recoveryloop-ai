@@ -4,6 +4,8 @@ test("public foundation renders and emits browser security headers", async ({ pa
   const response = await page.goto("/");
   expect(response?.status()).toBe(200);
   await expect(page.getByRole("heading", { name: /See the whole order/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Explore live demo/i })).toHaveAttribute("href", "/app");
+  await expect(page.locator(".status-pill")).toHaveText(/Public sandbox demo/);
   await expect(page.getByText("0", { exact: true })).toBeVisible();
 
   const headers = response?.headers() ?? {};

@@ -1,96 +1,135 @@
-# RecoveryLoop AI — Architecture and Codex Sprint Kit v1.0
+# RecoveryLoop AI
 
-**Status:** Sprint S6 complete: the verified `$250.00` PayPal sandbox capture has exactly one operator-approved `$100.00` partial refund, independently GET-verified and stored with its allocation, audit trail and redacted certificate. S7 is next but has not started. Updated 3 November 2026, Asia/Karachi.
+[![CI](https://github.com/recoveryloop-ai/recoveryloop-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/recoveryloop-ai/recoveryloop-ai/actions/workflows/ci.yml)
+[![Live demo](https://img.shields.io/badge/demo-live-2f7df6)](https://recoveryloop-ai.vercel.app)
+[![License: MIT](https://img.shields.io/badge/license-MIT-071426.svg)](LICENSE)
 
-**Product:** AI merchant financial incident resolution with a Financial Obligation Graph, counterfactual resolution simulation, merchant-approved PayPal sandbox refund, verified receipt and isolated public evidence challenge.
+RecoveryLoop AI turns fragmented payment, shipment, policy and refund evidence into an auditable customer obligation before money moves. The ResolutionGraph engine keeps deterministic financial rules authoritative while Z.ai GLM 5.3 explains evidence through a strictly read-only tool boundary.
 
-**Owner-approved configuration:** RecoveryLoop AI brand; electronics merchant; USD-only; Z.ai GLM API; PayPal sandbox and EasyPost test mode; Supabase/Vercel available; public working Vercel judge demo with protected operator actions.
+**Live judge demo:** https://recoveryloop-ai.vercel.app
+**Release state:** S0–S7 complete; S8 technical release gates verified. Public YouTube publication and final Devpost submission remain owner-controlled actions.
 
-## Read first
-- `START_HERE.md` / `AGENTS.md` — execution and safety
-- `docs/MASTER_TECHNICAL_BLUEPRINT.md` — all detailed architecture, UI, workflows, data schemas, API, tests and sprint instructions
-- `docs/DECISIONS.md` — locked decisions
-- `docs/JUDGE_DEMO_CONTRACT.md` — interactions and access isolation
-- `docs/OPENAI_AGENT_CONTRACT.md` — AI tools, schema, evaluation
-- `docs/PROVIDER_SETUP.md` — account and sandbox readiness
-- `docs/SPRINT_EXECUTION.md` — 70-hour gate-led schedule
-- `docs/COLLABORATOR_ONBOARDING.md` — independent developer access and local setup
-- `fixtures/scenarios.json` and `diagrams/` — initial test data and visual architecture
+## Judge path
 
-A judge can navigate and test synthetic changes without an account. Provider-write actions are only allowed to authenticated operators, never to anonymous judges.
+No account is required:
+
+1. Open the [public production app](https://recoveryloop-ai.vercel.app) and choose **Explore live demo**.
+2. Open case `RG-2048` and inspect the cited investigation.
+3. Follow the Recovery Map: `$250.00` captured, `$100.00` customer obligation, `$100.00` simulated remedy.
+4. In Demo Lab, choose **Already refunded**. The isolated synthetic overlay changes the additional remedy to `$0.00` with `REFUND_ALREADY_SETTLED`.
+5. Reset safely. Only the current anonymous overlay is deleted; canonical provider records do not change.
+6. Open the redacted certificate for the separate authenticated PayPal Sandbox action.
+
+Public visitors can inspect and simulate, but cannot create, approve, capture, execute or reconcile provider money actions.
+
+## What is real, test-mode and synthetic
+
+| Evidence | Provenance | Meaning |
+|---|---|---|
+| `$250.00` capture and `$100.00` partial refund | PayPal Sandbox, independently read back | Real sandbox provider records; no live funds |
+| Return-to-sender carrier events | EasyPost test tracker | Provider test events, not a commercial delivery |
+| Item-to-shipment mapping and judge overlays | Explicitly `SYNTHETIC` | Safe demo evidence only |
+| Investigation narrative | Z.ai GLM 5.3 or explicit rules fallback | Explanatory; never determines executable amounts |
+| Refund amount and duplicate block | Deterministic policy v1 | Sole financial authority |
+
+RecoveryLoop does not claim recovered carrier cash, live merchant deployment, automated carrier-claim submission or production PayPal access.
+
+## Architecture and safety
+
+![RecoveryLoop architecture](diagrams/architecture.png)
+
+- Next.js 16 App Router and TypeScript modular monolith on Vercel.
+- Supabase PostgreSQL with Drizzle migrations; every public table has RLS and no direct `anon`/`authenticated` grants.
+- Supabase Auth checks the server-verified operator identity and trusted `app_metadata` on every money route.
+- Integer-cent USD arithmetic, immutable evidence/policy snapshots and semantic duplicate guards.
+- Stable PayPal request IDs, transaction reservations and independent provider GET verification.
+- Signed `HttpOnly`, `SameSite=Lax`, HTTPS-only judge cookies; only token hashes are stored.
+- Allowlisted session overlays with 45-minute TTL, atomic request cap and session-scoped reset.
+- Z.ai uses eight scoped read-only tools, strict output validation, stored evidence IDs and a durable rules fallback.
+
+The [master blueprint](docs/MASTER_TECHNICAL_BLUEPRINT.md), [judge contract](docs/JUDGE_DEMO_CONTRACT.md), [decisions](docs/DECISIONS.md) and sprint reports document the complete design and observed evidence.
 
 ## Local setup
 
-Requires Node.js 22+.
+Requirements: Node.js 22+, npm and a PostgreSQL/Supabase connection. Provider credentials are required only for the corresponding sandbox/test integration.
 
 ```bash
-npm install
+git clone https://github.com/recoveryloop-ai/recoveryloop-ai.git
+cd recoveryloop-ai
+npm ci
 npm run env:init
 ```
 
-Open `.env.local` locally and add the available provider values. Never paste keys into chat or commit that file. Current Supabase projects should use a publishable key in browser code and a secret key on the server; legacy `anon` and `service_role` keys are not required by this scaffold.
+Edit the generated, Git-ignored `.env.local`. Never commit or share it. Keep:
 
-Run the application:
-
-```bash
-npm run dev
+```dotenv
+DEMO_MODE=true
+PAYPAL_ENV=sandbox
+AI_PROVIDER=zai
+ZAI_MODEL=glm-5.3
 ```
 
-The application routes include `/`, `/app`, `/store`, and `/login`. PayPal sandbox checkout is available only after server-verified operator authentication. The protected diagnostic and payment routes verify a Supabase session or bearer token, the allowlisted operator email, and `app_metadata.role`; anonymous requests receive `401`.
+Generate `DEMO_SESSION_SIGNING_SECRET` from at least 32 random bytes. Use a Supabase publishable key only in `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; secret keys remain server-only. See [.env.example](.env.example) and [provider setup](docs/PROVIDER_SETUP.md) for the full inventory.
 
-The S2 checkout sequence is deliberately split: create local order and PayPal sandbox order, buyer approval, explicit server capture, independent capture GET/read-back, then durable receipt. Capture and order IDs are distinct. S6 refund execution is separately operator-gated and requires an immutable proposal hash, exact confirmation phrase, database reservation, stable request ID and refund GET read-back.
-
-Run each provider check independently when provider readiness must be re-verified:
-
-```bash
-npm run smoke:easypost
-npm run smoke:zai
-npm run smoke:supabase
-npm run smoke:paypal
-```
-
-`smoke:paypal` refuses live PayPal whenever `DEMO_MODE=true` and creates only an unapproved, uncaptured USD 1.00 sandbox order after OAuth succeeds. The local mock adapter is always labeled `SYNTHETIC`; it cannot satisfy the real PayPal sandbox gate.
-
-For the S2 manual capture proof, run the local app and then:
-
-```bash
-npm run smoke:paypal:s2:create
-# Approve the printed URL with a PayPal sandbox personal/buyer account.
-npm run smoke:paypal:s2:capture
-```
-
-The temporary checkout state is owner-readable only and Git-ignored. Both scripts authenticate as the Supabase demo operator and exercise the protected application routes; they never print credentials or access tokens.
-
-Apply and seed the S1 database:
+Initialize the database and run the app:
 
 ```bash
 npm run db:migrate
 npm run db:seed:s1
-npm run db:verify:s1
-npm run db:verify:s2
 npm run s3:ingest:f02
-npm run db:verify:s3
 npm run s4:reconcile
-npm run db:verify:s4
-npm run db:verify:s5
-npm run s6:prepare
-npm run db:verify:s6
+npm run dev
 ```
 
-`s6:execute` is the authenticated real-sandbox proof command. It is idempotent after completion and will not issue a second refund; run it only against the prepared demo capture. `UNKNOWN` actions remain reserved and require the reconcile route with a known provider refund ID.
+The repository never includes provider credentials, operator passwords, sandbox buyer identities, customer PII or `.env.local`.
 
-`db:down:s1` is intentionally guarded and drops only S1 tables when `ALLOW_S1_DOWN=true` is explicitly supplied. All public tables have RLS enabled, and direct table privileges are revoked from Supabase `anon` and `authenticated`; authenticated application handlers access the database server-side after authorization.
-
-Run local verification:
+## Verification
 
 ```bash
-npm run typecheck
 npm run lint
+npm run typecheck
 npm test
 npm run build
 npm run test:e2e
+npm run db:verify:s1
+npm run db:verify:s2
+npm run db:verify:s3
+npm run db:verify:s4
+npm run db:verify:s5
+npm run db:verify:s6
+npm run db:verify:s7
+npm run release:verify
 ```
 
-`test:e2e` runs against the production build. With local operator credentials it verifies real Supabase sign-in and the existing provider-verified receipt; secret-dependent tests skip in public CI, where the anonymous and security-header suite still runs.
+`release:verify` is non-mutating with respect to providers. It checks the public HTTPS app, six routes, signed-cookie attributes, isolated overlay/reset behavior, redacted certificate, public GitHub README/license and direct anonymous denial on money routes.
 
-No credentials, production payment calls, or commercial merchant records are contained in this repository. S1 fixtures are visibly synthetic and use deterministic local identifiers; S2 documentation contains only redacted PayPal sandbox evidence.
+Current verified evidence:
+
+- 99 unit/contract tests.
+- 24 local desktop/mobile/operator E2E tests.
+- All database verifiers S1–S7 pass; 24 RLS tables and zero public table grants.
+- Exactly one GET-verified `$100.00` PayPal Sandbox refund against the `$250.00` capture; a duplicate proposal is blocked before network.
+- Public session isolation and reset preserve the canonical financial-ledger fingerprint.
+- `npm audit --audit-level=high`: zero vulnerabilities at the S8 release checkpoint.
+
+Public CI intentionally has no database or provider secrets. Secret-dependent browser checks skip there and run locally/against production with the configured release environment.
+
+## Provider boundaries
+
+- `PAYPAL_ENV=live` is rejected whenever `DEMO_MODE=true`.
+- `smoke:paypal` creates only an unapproved, uncaptured `$1.00` sandbox order; it never satisfies the verified refund proof.
+- `s6:execute` is an operator-authenticated proof command and is idempotent after completion. Do not run it casually.
+- EasyPost uses test mode only.
+- The `openai` npm package is used as an OpenAI-compatible client for the configured Z.ai endpoint; OpenAI services are not used.
+
+## Release materials
+
+- [S8 submission checklist](docs/SUBMISSION_CHECKLIST.md)
+- [Demo video script](docs/DEMO_SCRIPT.md)
+- [Devpost submission draft](docs/DEVPOST_SUBMISSION.md)
+- [S8 implementation and release report](docs/S8_IMPLEMENTATION_REPORT.md)
+- [Collaborator onboarding](docs/COLLABORATOR_ONBOARDING.md)
+
+## License
+
+Released under the [MIT License](LICENSE). Copyright © 2026 RecoveryLoop AI contributors.

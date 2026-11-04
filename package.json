@@ -36,6 +36,8 @@
     "s5:investigate:f02": "tsx scripts/s5/investigate-f02.ts",
     "s6:prepare": "tsx scripts/s6/prepare-real-refund-case.ts",
     "s6:execute": "tsx scripts/s6/execute-real-refund.ts",
+    "release:verify": "node scripts/release/verify-s8.mjs",
+    "release:record-demo": "node scripts/release/record-demo.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit"

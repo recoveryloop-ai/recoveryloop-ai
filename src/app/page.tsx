@@ -5,14 +5,14 @@ export default function LandingPage() {
     <main className="landing">
       <nav className="landing-nav">
         <div className="brand"><span className="brand-mark">R</span><span><strong>RecoveryLoop</strong><small>Exception intelligence</small></span></div>
-        <span className="status-pill"><span className="pulse-dot" />Sandbox foundation ready</span>
+        <span className="status-pill"><span className="pulse-dot" />Public sandbox demo</span>
       </nav>
       <section className="hero">
         <p className="eyebrow">Recovery operations, made accountable</p>
         <h1>See the whole order.<br /><em>Recover with certainty.</em></h1>
         <p className="hero-copy">RecoveryLoop turns fragmented payment, fulfillment, and policy signals into a traceable customer obligation—before anyone moves money.</p>
         <div className="hero-actions">
-          <Link className="button primary" href="/app">Open workspace <span>↗</span></Link>
+          <Link className="button primary" href="/app">Explore live demo <span>↗</span></Link>
           <Link className="button secondary" href="/store">View demo order</Link>
         </div>
         <div className="proof-row" aria-label="Foundation capabilities">

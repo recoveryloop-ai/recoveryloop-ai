@@ -24,6 +24,7 @@
 | ADR-018 | Z.ai GLM 5.3 investigator is explanatory only, with eight scoped read-only tools, strict schema/citation validation and durable rules fallback | ACCEPTED, S5 VERIFIED | Real F02 run cites two stored records; prompt injection, fabricated citations, stale input, unavailable AI and forbidden write-tool attempts are tested and fail closed |
 | ADR-019 | Refund execution requires immutable deterministic proposal, explicit operator approval, database reservation, stable PayPal request ID and provider GET before completion | ACCEPTED, S6 VERIFIED | Real `$100.00` partial sandbox refund against the verified `$250.00` capture is GET-confirmed; one action/refund/allocation/certificate exists and a second proposal is blocked before network |
 | ADR-020 | Public judge state uses signed random HttpOnly cookies plus hashed, expiring database sessions and allowlisted synthetic overlays; reset is session-scoped and canonical financial records remain immutable | ACCEPTED, S7 VERIFIED | 45-minute sessions, atomic request cap, two-context isolation, refresh persistence, scoped reset and canonical-ledger fingerprint stability are tested; public investigation is cached/rules-only and makes no provider or fresh AI call |
+| ADR-021 | Publish the hackathon release under MIT with a reproducible public repository, automated no-provider-write release verification and owner-reviewed YouTube/Devpost handoff | ACCEPTED, S8 TECHNICALLY VERIFIED | README, license, release verifier, recording script, demo narration and submission copy are versioned; external YouTube publication and Devpost submission remain owner-controlled |
 
 ## Owner provisioning items
 
@@ -33,7 +34,7 @@
 - [x] Create the dedicated Supabase project and confirm PostgreSQL read/write access.
 - [x] Configure Supabase server-side Auth and the allowlisted operator during the authorized foundation sprint.
 - [x] Confirm Z.ai standard API key and `glm-5.3` access.
-- [ ] Confirm Vercel project permissions and production domain hosting.
+- [x] Confirm Vercel project permissions and production domain hosting.
 
 Never paste credentials in chat; keep `.env.local` out of version control and configure server-only environment variables in hosting. The coding agent must report observed provider responses, not just say access is available.
 
