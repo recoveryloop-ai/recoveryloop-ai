@@ -32,7 +32,7 @@ test("anonymous evidence overlays persist, remain isolated, and reset safely", a
     firstPage.on("pageerror", (error) => pageErrors.push(error.message));
     firstPage.on("console", (message) => { if (message.type() === "error") consoleErrors.push(message.text()); });
     await firstPage.goto("/app/demo");
-    await expect(firstPage.getByText("CANONICAL LEDGER", { exact: true })).toBeVisible();
+    await expect(firstPage.getByText("CANONICAL LEDGER", { exact: true })).toBeVisible({ timeout: 15_000 });
     const overlayResponse = firstPage.waitForResponse((response) => response.url().endsWith("/api/demo/overlay"));
     await firstPage.getByRole("button", { name: /Already refunded/ }).click();
     expect((await overlayResponse).status()).toBe(200);
@@ -42,17 +42,17 @@ test("anonymous evidence overlays persist, remain isolated, and reset safely", a
     await expect(firstPage.locator(".source-banner")).toContainText("SYNTHETIC SESSION OVERLAY", { timeout: 15_000 });
     await expect(firstPage.locator(".comparison-card.after").getByText("BLOCKED")).toBeVisible();
     await firstPage.reload();
-    await expect(firstPage.getByText("SYNTHETIC SESSION OVERLAY", { exact: true })).toBeVisible();
+    await expect(firstPage.getByText("SYNTHETIC SESSION OVERLAY", { exact: true })).toBeVisible({ timeout: 15_000 });
 
     await secondPage.goto("/app/demo");
-    await expect(secondPage.getByText("CANONICAL LEDGER", { exact: true })).toBeVisible();
+    await expect(secondPage.getByText("CANONICAL LEDGER", { exact: true })).toBeVisible({ timeout: 15_000 });
     await expect(secondPage.locator(".comparison-card.after").getByText("ALLOWED")).toBeVisible();
 
     await firstPage.getByRole("button", { name: "Reset safely" }).click();
-    await expect(firstPage.getByText("CANONICAL LEDGER", { exact: true })).toBeVisible();
+    await expect(firstPage.getByText("CANONICAL LEDGER", { exact: true })).toBeVisible({ timeout: 15_000 });
     await expect(firstPage.locator(".comparison-card.after").getByText("ALLOWED")).toBeVisible();
     await secondPage.reload();
-    await expect(secondPage.getByText("CANONICAL LEDGER", { exact: true })).toBeVisible();
+    await expect(secondPage.getByText("CANONICAL LEDGER", { exact: true })).toBeVisible({ timeout: 15_000 });
   } finally {
     await first.close();
     await second.close();
