@@ -9,11 +9,11 @@ Read in this order:
 4. `docs/JUDGE_DEMO_CONTRACT.md`, `docs/OPENAI_AGENT_CONTRACT.md`, `docs/PROVIDER_SETUP.md` — implementation specifics.
 5. `docs/SPRINT_EXECUTION.md` — checkpoint schedule and code-agent instructions.
 
-## Immediately next: Sprint S7 only (requires owner approval)
+## Immediately next: Sprint S8 only (requires owner approval)
 
-**Checkpoint:** S0 through S6 and the pre-S4 deployment-hardening checkpoint are complete. The public production app is live at `https://recoveryloop-ai.vercel.app`. The verified `$250.00` PayPal sandbox capture now has exactly one operator-approved `$100.00` partial refund, independently read back as `COMPLETED`; the durable action is `VERIFIED_CLOSED`, the obligation balance is zero and `$150.00` capture capacity remains. Stale and competing approvals, anonymous money routes, duplicate retries and unknown outcomes fail closed. S4 remains the sole financial authority and S5 remains explanatory only. Never send keys in chat or commit `.env.local`.
+**Checkpoint:** S0 through S7 and the pre-S4 deployment-hardening checkpoint are complete. The public production app is live at `https://recoveryloop-ai.vercel.app`. S7 adds the six-tab judge workspace, signed and expiring anonymous sessions, isolated synthetic evidence overlays, safe session-scoped reset, protected Action Center and a print-ready redacted certificate. The verified `$250.00` PayPal sandbox capture still has exactly one `$100.00` refund and `$150.00` remaining capacity; the S7 ledger-stability verifier confirms public interactions do not mutate it. Never send keys in chat or commit `.env.local`.
 
-**Coding-agent S7 assignment (only after owner approval):** Implement the signed-off six-tab public judge experience, isolated synthetic evidence overlays, safe demo reset, action-center operator UX and polished redacted certificate rendering. Preserve the verified S6 payment ledger and keep all public provider writes forbidden. Do not begin S8 behavior.
+**Coding-agent S8 assignment (only after owner approval):** Execute release and submission work only: final public/incognito verification, repository and license/readme polish, API-access evidence, demo script/video support and Devpost readiness. Do not change the S7 financial or judge-demo contracts without owner approval.
 
 ## What judges can do
 
@@ -25,4 +25,4 @@ Official close as documented in blueprint: 13 November 2026 at 01:00 PKT; intern
 
 ## Next Codex prompt
 
-> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially S7 and sections 4, 7, 9, 10, 12 and 17), and all completed sprint reports. Execute Sprint S7 ONLY after explicit owner approval. Build isolated judge overlays and a safe reset without mutating canonical provider records, add protected operator action UX over the existing S6 routes, and render the redacted durable certificate. Do not begin S8 without owner approval.
+> Read AGENTS.md, START_HERE.md, docs/DECISIONS.md, docs/MASTER_TECHNICAL_BLUEPRINT.md (especially S8 and sections 12, 17 and 18), and all completed sprint reports. Execute Sprint S8 ONLY after explicit owner approval. Preserve the verified S7 demo and S6 provider ledger. Do not add post-MVP scope.

@@ -57,7 +57,7 @@ try {
     from pg_tables where schemaname = 'public' and tablename <> '__drizzle_migrations'
     order by tablename`;
   const expectedTables = [
-    "actions", "audit_events", "captures", "cases", "certificates", "evidence", "graph_edges", "investigations", "merchants",
+    "actions", "audit_events", "captures", "cases", "certificates", "demo_overlays", "evidence", "graph_edges", "investigations", "judge_sessions", "merchants",
     "obligation_allocations", "obligations", "order_items", "orders", "paypal_orders", "policy_versions",
     "proposals", "refunds", "shipment_events", "shipment_items", "shipments", "users", "webhook_inbox",
   ];

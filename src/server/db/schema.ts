@@ -416,3 +416,36 @@ export const webhookInbox = pgTable("webhook_inbox", {
 }, (table) => [
   uniqueIndex("webhook_inbox_provider_event_unique").on(table.provider, table.eventId),
 ]);
+
+export const judgeSessions = pgTable("judge_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tokenHash: varchar("token_hash", { length: 64 }).notNull(),
+  requestCount: integer("request_count").notNull().default(0),
+  aiCallCount: integer("ai_call_count").notNull().default(0),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt,
+}, (table) => [
+  uniqueIndex("judge_sessions_token_hash_unique").on(table.tokenHash),
+  index("judge_sessions_expires_idx").on(table.expiresAt),
+  check("judge_sessions_token_hash_valid", sql`length(${table.tokenHash}) = 64`),
+  check("judge_sessions_counters_nonnegative", sql`${table.requestCount} >= 0 and ${table.aiCallCount} >= 0`),
+]);
+
+export const demoOverlays = pgTable("demo_overlays", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  sessionId: uuid("session_id").notNull().references(() => judgeSessions.id, { onDelete: "cascade" }),
+  caseRef: varchar("case_ref", { length: 32 }).notNull().default("RG-2048"),
+  scenario: varchar("scenario", { length: 40 }).notNull(),
+  evidenceHash: varchar("evidence_hash", { length: 64 }).notNull(),
+  payloadJson: jsonb("payload_json").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt,
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("demo_overlays_session_case_unique").on(table.sessionId, table.caseRef),
+  index("demo_overlays_session_expires_idx").on(table.sessionId, table.expiresAt),
+  check("demo_overlays_case_allowlist", sql`${table.caseRef} = 'RG-2048'`),
+  check("demo_overlays_scenario_allowlist", sql`${table.scenario} in ('ALREADY_REFUNDED', 'CONTRADICTORY_DELIVERY')`),
+  check("demo_overlays_evidence_hash_valid", sql`length(${table.evidenceHash}) = 64`),
+]);

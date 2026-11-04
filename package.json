@@ -23,6 +23,7 @@
     "db:verify:s4": "tsx scripts/db/verify-s4.ts",
     "db:verify:s5": "tsx scripts/db/verify-s5.ts",
     "db:verify:s6": "tsx scripts/db/verify-s6.ts",
+    "db:verify:s7": "tsx scripts/db/verify-s7.ts",
     "smoke:all": "tsx scripts/smoke/all.ts",
     "smoke:easypost": "tsx scripts/smoke/easypost.ts",
     "smoke:zai": "tsx scripts/smoke/zai.ts",

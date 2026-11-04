@@ -1,0 +1,6 @@
+import { AppShell } from "@/components/app-shell";
+
+const safeguards = ["PayPal sandbox only", "Signed HttpOnly demo sessions", "Per-session synthetic overlays", "No secrets in client bundles", "RLS on every public table", "Integer USD money math"];
+export default function SettingsPage() {
+  return <AppShell active="/app/settings"><header className="workspace-header s7-header"><div><p className="eyebrow">System posture</p><h1>Settings & safeguards</h1><p>Public, redacted configuration for the RecoveryLoop demo environment.</p></div><span className="status-pill"><span className="pulse-dot" /> Demo mode enforced</span></header><section className="settings-grid">{safeguards.map((item, index) => <article className="panel s7-panel" key={item}><span>0{index + 1}</span><strong>{item}</strong><small>{index < 3 ? "Runtime enforced" : "Verified by test and database checks"}</small></article>)}</section><section className="panel s7-panel settings-note"><p className="eyebrow">Redaction boundary</p><h2>Credentials and provider identifiers are never rendered here.</h2><p>Operational secrets remain server-side. The public demo exposes provenance labels, deterministic results, and redacted proof only.</p></section></AppShell>;
+}
