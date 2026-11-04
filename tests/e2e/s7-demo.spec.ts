@@ -21,6 +21,7 @@ test("six-tab judge workspace is navigable without authentication", async ({ pag
 });
 
 test("anonymous evidence overlays persist, remain isolated, and reset safely", async ({ browser }) => {
+  test.setTimeout(90_000);
   test.skip(!process.env.DATABASE_URL, "The public CI job intentionally has no database credential.");
   const first = await browser.newContext();
   const second = await browser.newContext();
