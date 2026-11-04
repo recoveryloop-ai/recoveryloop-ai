@@ -37,11 +37,23 @@
 | `npm run build` | PASS — all S7 pages and API routes included |
 | `npm run db:verify:s1` through `db:verify:s7` | PASS — all prior contracts preserved |
 | `npm run test:e2e` | PASS — 24 desktop/mobile/operator tests |
+| Production browser coverage | PASS — all 24 assertions covered against `https://recoveryloop-ai.vercel.app`; 22 passed in the first run and the two remote-latency cases passed on immediate focused rerun with their explicit 90-second budget |
 | S7 session verifier | PASS — two isolated sessions, scoped reset, stable canonical ledger |
+| `npm audit --audit-level=high` | PASS — 0 vulnerabilities |
+| GitHub Actions CI | PASS — run `41776040862` for commit `027e5fd` |
+
+## Production release
+
+- Vercel deployment `dpl_7GaZnwqPogpEKqVJH9Mr73QuAwQE` reached `READY` and is aliased to `https://recoveryloop-ai.vercel.app`.
+- Anonymous HTTP checks return `200` for both `/` and `/app/demo`.
+- The production browser matrix covers navigation, session isolation, refresh persistence, safe reset, investigation, redacted certificate, operator receipt and anonymous money-route denial on desktop and mobile.
+- The available Vercel Hobby-plan runtime-log and request-log windows contain zero error/fatal records and zero HTTP 5xx records for the deployment.
 
 ## QA disclosure
 
 - Initial browser QA found that the negative proposal delta for the “Already refunded” scenario was passed to the non-negative money constructor, causing the UI error boundary after selection. The diff now formats signed amounts from the absolute integer value; the regression is covered by desktop and mobile E2E tests.
+- The first production matrix used the default five-second visibility assertion for a fresh remote judge session; two cold starts exceeded it. The product requests completed successfully. The test now uses a 15-second visibility allowance and a 90-second end-to-end budget for the two-context workflow; both desktop and mobile passes are recorded.
+- The first S7 CI runs attempted the database-backed Command page without a CI database. That test now uses the same explicit `DATABASE_URL` skip contract as every other database-backed browser test. CI run `41776040862` is green; public header and authorization tests still execute in CI.
 - Supabase management-advisor access remains unavailable on the transferred project. Direct SQL verification covers RLS, grants, constraints, indexes, application-role boundaries and data isolation.
 
 ## Gate
