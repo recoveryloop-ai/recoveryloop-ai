@@ -41,7 +41,13 @@ No S8 provider financial write, capture or refund occurred. The existing S6 cert
 
 ## Production and reproducibility evidence
 
-Final deployment, public verifier, production browser matrix, clean-clone and CI evidence will be recorded below after the S8 commit is public and the exact build is deployed.
+- Release commit `1f09574` is public on `main`; GitHub Actions CI run `41778419434` passed.
+- Vercel production deployment `dpl_7Au85hMUNd6HWvn14VbsoZMxHSpW` reached `READY` and was promoted to `https://recoveryloop-ai.vercel.app`.
+- `npm run release:verify` passed all public routes, headers, judge-cookie flags, overlay/reset, five anonymous money-route denials, redacted certificate and public README/license checks with `providerWrites: 0`.
+- The production Playwright matrix passed all 24 desktop/mobile/operator tests in 3.8 minutes.
+- Vercel's 30-minute post-deploy scan returned zero runtime `error`/`fatal` records and zero requests with HTTP status 500 or higher.
+- A fresh anonymous clone in `/tmp` passed `npm ci`, lint, typecheck, 99 tests and production build without a local environment file.
+- The automated walkthrough recorder completed against production and produced a 91-second, credential-free local draft at `artifacts/recoveryloop-demo-draft.webm`. It is intentionally not the final narrated YouTube artifact.
 
 ## Intentional MVP cuts
 
