@@ -14,6 +14,7 @@ test("public foundation renders and emits browser security headers", async ({ pa
 });
 
 test("workspace fixtures remain usable at desktop and mobile widths", async ({ page }, testInfo) => {
+  test.skip(!process.env.DATABASE_URL, "The public CI job intentionally has no database credential.");
   await page.goto("/app");
   await expect(page.getByRole("heading", { name: "Recovery command" })).toBeVisible();
   await expect(page.getByText("Canonical orders", { exact: true })).toBeVisible();
