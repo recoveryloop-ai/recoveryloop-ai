@@ -417,6 +417,36 @@ export const webhookInbox = pgTable("webhook_inbox", {
   uniqueIndex("webhook_inbox_provider_event_unique").on(table.provider, table.eventId),
 ]);
 
+/**
+ * One row per (PayPal dispute, disputed capture). Linked to captures by the provider
+ * capture ID rather than a foreign key so a dispute that arrives before its capture is
+ * recorded is held, not dropped, and starts guarding as soon as the capture exists.
+ */
+export const paymentDisputes = pgTable("payment_disputes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  provider: varchar("provider", { length: 24 }).notNull().default("PAYPAL"),
+  providerDisputeId: varchar("provider_dispute_id", { length: 128 }).notNull(),
+  providerCaptureId: varchar("provider_capture_id", { length: 128 }).notNull(),
+  providerStatus: varchar("provider_status", { length: 64 }).notNull(),
+  outcomeCode: varchar("outcome_code", { length: 64 }),
+  reason: varchar("reason", { length: 64 }),
+  lifecycleStage: varchar("lifecycle_stage", { length: 64 }),
+  guardState: varchar("guard_state", { length: 24 }).notNull(),
+  amountMinor: integer("amount_minor"),
+  currency: varchar("currency", { length: 3 }),
+  providerCreatedAt: timestamp("provider_created_at", { withTimezone: true }),
+  providerUpdatedAt: timestamp("provider_updated_at", { withTimezone: true }).notNull(),
+  lastEventId: varchar("last_event_id", { length: 160 }).notNull(),
+  createdAt,
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("payment_disputes_provider_dispute_capture_unique").on(table.provider, table.providerDisputeId, table.providerCaptureId),
+  index("payment_disputes_capture_guard_idx").on(table.provider, table.providerCaptureId, table.guardState),
+  check("payment_disputes_guard_state_valid", sql`${table.guardState} in ('OPEN', 'BUYER_PAID', 'CLOSED_NO_PAYOUT')`),
+  check("payment_disputes_provider_paypal", sql`${table.provider} = 'PAYPAL'`),
+  check("payment_disputes_amount_nonnegative", sql`${table.amountMinor} is null or ${table.amountMinor} >= 0`),
+]);
+
 export const judgeSessions = pgTable("judge_sessions", {
   id: uuid("id").primaryKey().defaultRandom(),
   tokenHash: varchar("token_hash", { length: 64 }).notNull(),
@@ -446,6 +476,6 @@ export const demoOverlays = pgTable("demo_overlays", {
   uniqueIndex("demo_overlays_session_case_unique").on(table.sessionId, table.caseRef),
   index("demo_overlays_session_expires_idx").on(table.sessionId, table.expiresAt),
   check("demo_overlays_case_allowlist", sql`${table.caseRef} = 'RG-2048'`),
-  check("demo_overlays_scenario_allowlist", sql`${table.scenario} in ('ALREADY_REFUNDED', 'CONTRADICTORY_DELIVERY')`),
+  check("demo_overlays_scenario_allowlist", sql`${table.scenario} in ('ALREADY_REFUNDED', 'CONTRADICTORY_DELIVERY', 'BUYER_DISPUTE')`),
   check("demo_overlays_evidence_hash_valid", sql`length(${table.evidenceHash}) = 64`),
 ]);
