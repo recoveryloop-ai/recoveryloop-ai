@@ -7,8 +7,8 @@ export const judgeCookieName = "recoveryloop_judge";
 export const judgeSessionTtlSeconds = 45 * 60;
 export const judgeRequestLimit = 120;
 
-export type DemoScenario = "BASELINE" | "ALREADY_REFUNDED" | "CONTRADICTORY_DELIVERY";
-export const mutableDemoScenarios = ["ALREADY_REFUNDED", "CONTRADICTORY_DELIVERY"] as const;
+export const mutableDemoScenarios = ["ALREADY_REFUNDED", "CONTRADICTORY_DELIVERY", "BUYER_DISPUTE"] as const;
+export type DemoScenario = "BASELINE" | typeof mutableDemoScenarios[number];
 
 export type JudgeSession = {
   id: string;
