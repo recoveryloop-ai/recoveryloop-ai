@@ -93,6 +93,34 @@ describe("deterministic obligation engine", () => {
     expect(result.reasonCodes).toContain("APPROVAL_STALE");
   });
 
+  it("blocks a refund while a PayPal dispute is open and counts it as avoided double payout", () => {
+    const base = inputFor(golden.fixtures[1]!);
+    const result = deriveObligation({ ...base, disputeState: "OPEN" });
+    expect(result.decision).toBe("BLOCKED");
+    expect(result.reasonCodes).toEqual(["DISPUTE_OPEN"]);
+    expect(result.proposedRefundMinor).toBe(0);
+    expect(result.outstandingMinor).toBe(10_000);
+    expect(result.avoidedDuplicateExposureMinor).toBe(10_000);
+  });
+
+  it("never refunds on top of a dispute that already paid the buyer", () => {
+    const base = inputFor(golden.fixtures[1]!);
+    const result = deriveObligation({ ...base, disputeState: "BUYER_PAID" });
+    expect(result.decision).toBe("BLOCKED");
+    expect(result.reasonCodes).toEqual(["DISPUTE_PAID_TO_BUYER"]);
+    expect(result.proposedRefundMinor).toBe(0);
+  });
+
+  it("is unchanged when no dispute exists, and a dispute never unblocks another reason", () => {
+    const base = inputFor(golden.fixtures[1]!);
+    expect(deriveObligation({ ...base, disputeState: "NONE" })).toEqual(deriveObligation(base));
+    const settled = inputFor(golden.fixtures.find((fixture) => fixture.id === "F03")!);
+    const both = deriveObligation({ ...settled, disputeState: "OPEN" });
+    expect(both.decision).toBe("BLOCKED");
+    expect(both.reasonCodes).toEqual(expect.arrayContaining(["REFUND_ALREADY_SETTLED", "DISPUTE_OPEN"]));
+    expect(both.proposedRefundMinor).toBe(0);
+  });
+
   it("maintains non-negative, bounded outputs across deterministic small amounts", () => {
     const base = inputFor(golden.fixtures[1]!);
     for (let capture = 0; capture <= 100; capture += 7) {

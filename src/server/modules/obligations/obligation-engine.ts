@@ -1,4 +1,5 @@
 import { addMoney, assertMinorUnits, money, multiplyMoney, USD, type Currency } from "../../../shared/money";
+import type { OrderDisputeState } from "../disputes/contracts";
 
 export const obligationReasonCodes = [
   "REFUND_ELIGIBLE",
@@ -11,6 +12,8 @@ export const obligationReasonCodes = [
   "APPROVAL_STALE",
   "EXCEEDS_CAPTURE_BALANCE",
   "EXCEEDS_OBLIGATION_BALANCE",
+  "DISPUTE_OPEN",
+  "DISPUTE_PAID_TO_BUYER",
 ] as const;
 
 export type ObligationReasonCode = typeof obligationReasonCodes[number];
@@ -40,6 +43,12 @@ export interface ObligationEngineInput {
   expectedEvidenceHash?: string;
   evidenceContradiction?: boolean;
   unknownPaymentOutcome?: boolean;
+  /**
+   * PayPal dispute state for the order's captures. A dispute is a second money path:
+   * while one is open, or after it paid the buyer, a refund would pay the customer twice.
+   * Omitted means NONE (no dispute observed).
+   */
+  disputeState?: OrderDisputeState;
 }
 
 export interface ObligationFormula {
@@ -113,12 +122,16 @@ export function deriveObligation(input: ObligationEngineInput): ObligationEngine
   if (reservedAllocatedMinor >= outstandingMinor && outstandingMinor > 0) reasons.push("REFUND_RESERVED");
   if (input.unknownPaymentOutcome) reasons.push("UNKNOWN_PAYMENT_OUTCOME");
   if (input.evidenceContradiction) reasons.push("EVIDENCE_CONTRADICTS_ADDRESS");
+  const disputeState = input.disputeState ?? "NONE";
+  if (disputeState === "OPEN") reasons.push("DISPUTE_OPEN");
+  if (disputeState === "BUYER_PAID") reasons.push("DISPUTE_PAID_TO_BUYER");
   if (input.expectedEvidenceHash !== undefined && input.expectedEvidenceHash !== input.evidenceHash) {
     reasons.push("APPROVAL_STALE");
   }
   const hasTerminalBalanceBlock = reasons.some((reason) => (
     reason === "NO_REFUND_OBLIGATION" || reason === "CAPTURE_NOT_COMPLETED"
       || reason === "REFUND_ALREADY_SETTLED" || reason === "REFUND_RESERVED"
+      || reason === "DISPUTE_OPEN" || reason === "DISPUTE_PAID_TO_BUYER"
   ));
   if (!hasTerminalBalanceBlock && requestedMinor > captureRemainingMinor) reasons.push("EXCEEDS_CAPTURE_BALANCE");
   if (!hasTerminalBalanceBlock && requestedMinor > outstandingMinor) reasons.push("EXCEEDS_OBLIGATION_BALANCE");
@@ -126,7 +139,8 @@ export function deriveObligation(input: ObligationEngineInput): ObligationEngine
   const decision = reasons.length === 0 ? "ALLOWED" : "BLOCKED";
   if (decision === "ALLOWED") reasons.push("REFUND_ELIGIBLE");
   const proposedRefundMinor = decision === "ALLOWED" ? requestedMinor : 0;
-  const duplicateBlocked = reasons.includes("REFUND_ALREADY_SETTLED") || reasons.includes("REFUND_RESERVED");
+  const duplicateBlocked = reasons.includes("REFUND_ALREADY_SETTLED") || reasons.includes("REFUND_RESERVED")
+    || reasons.includes("DISPUTE_OPEN") || reasons.includes("DISPUTE_PAID_TO_BUYER");
 
   return Object.freeze({
     fixtureId: input.fixtureId,
