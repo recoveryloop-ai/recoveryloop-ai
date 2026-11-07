@@ -39,6 +39,7 @@
     "release:verify": "node scripts/release/verify-s8.mjs",
     "release:record-demo": "node scripts/release/record-demo.mjs",
     "test": "vitest run",
+    "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit"
   },
