@@ -3,9 +3,9 @@ import { NextResponse } from "next/server";
 
 import { parsePayPalWebhookRequest } from "@/server/adapters/payments/paypal-webhook";
 import { getPaymentProvider } from "@/server/adapters/payments/provider-factory";
-import { createDatabase } from "@/server/db/client";
 import { AppError } from "@/server/http/app-error";
 import { routeErrorResponse } from "@/server/http/route-error";
+import { recordVerifiedPayPalEvent } from "@/server/modules/disputes/paypal-event-ingestion-service";
 
 export async function POST(request: Request) {
   try {
@@ -19,15 +19,15 @@ export async function POST(request: Request) {
     const verified = await provider.verifyWebhook(parsed.verification);
     if (!verified) throw new AppError("PAYPAL_WEBHOOK_SIGNATURE_INVALID", 400);
 
-    const { client } = createDatabase(process.env.DATABASE_URL ?? "");
-    try {
-      await client`insert into webhook_inbox (provider, event_id, verified, payload_hash)
-        values ('PAYPAL', ${parsed.eventId}, true, ${createHash("sha256").update(rawBody).digest("hex")})
-        on conflict (provider, event_id) do nothing`;
-    } finally {
-      await client.end();
-    }
-    return NextResponse.json({ received: true }, { status: 202 });
+    // Only signature-verified events reach the ledger. Recording and applying the event
+    // happen in one transaction, so a failure here returns an error and PayPal retries.
+    const result = await recordVerifiedPayPalEvent(process.env.DATABASE_URL ?? "", {
+      eventId: parsed.eventId,
+      eventType: parsed.eventType,
+      payloadHash: createHash("sha256").update(rawBody).digest("hex"),
+      event: parsed.event,
+    });
+    return NextResponse.json({ received: true, duplicate: result.duplicate }, { status: 202 });
   } catch (error) {
     return routeErrorResponse(error);
   }

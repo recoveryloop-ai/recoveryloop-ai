@@ -37,18 +37,11 @@ export function DemoLab() {
     try {
       const response = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, ...(body ? { body: JSON.stringify(body) } : {}) });
       if (!response.ok) throw new Error("The isolated demo change was rejected.");
-      const scenario = path.endsWith("/reset") ? "BASELINE" : (body as { scenario: DemoState["scenario"] }).scenario;
-      const current = data;
-      if (!current) throw new Error("The demo state is not ready.");
-      const after = scenario === "BASELINE" ? current.before : scenario === "ALREADY_REFUNDED"
-        ? { ...current.before, decision: "BLOCKED" as const, reasonCodes: ["REFUND_ALREADY_SETTLED"] as const, realizedRefundMinor: current.before.entitledMinor, outstandingMinor: 0, proposedRefundMinor: 0, avoidedDuplicateExposureMinor: current.before.entitledMinor }
-        : { ...current.before, decision: "BLOCKED" as const, reasonCodes: ["EVIDENCE_CONTRADICTS_ADDRESS"] as const, proposedRefundMinor: 0 };
-      setData({ ...current, scenario, sourceTier: scenario === "BASELINE" ? "CANONICAL_LEDGER" : "SYNTHETIC_SESSION_OVERLAY", after,
-        diff: { decision: { before: current.before.decision, after: after.decision },
-          proposedRefundMinor: { before: current.before.proposedRefundMinor, after: after.proposedRefundMinor, delta: after.proposedRefundMinor - current.before.proposedRefundMinor },
-          outstandingMinor: { before: current.before.outstandingMinor, after: after.outstandingMinor, delta: after.outstandingMinor - current.before.outstandingMinor },
-          avoidedDuplicateExposureMinor: { before: current.before.avoidedDuplicateExposureMinor, after: after.avoidedDuplicateExposureMinor, delta: after.avoidedDuplicateExposureMinor - current.before.avoidedDuplicateExposureMinor },
-          reasonCodesAdded: after.reasonCodes.filter((code) => !current.before.reasonCodes.includes(code)) } });
+      // Re-read the server projection instead of recomputing it here, so the page always
+      // shows exactly what the deterministic engine decided for this session.
+      const state = await fetch("/api/demo/state", { cache: "no-store" });
+      if (!state.ok) throw new Error("Unable to reload the isolated demo session.");
+      setData(await state.json() as DemoState);
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Demo change failed."); }
     finally { setBusy(false); }
   }
@@ -70,6 +63,7 @@ export function DemoLab() {
       <button disabled={busy} onClick={() => mutate("/api/demo/reset")} type="button" className={data.scenario === "BASELINE" ? "scenario-button selected" : "scenario-button"}><span>01</span><strong>Partial loss</strong><small>Canonical baseline</small></button>
       <button disabled={busy} onClick={() => mutate("/api/demo/overlay", { scenario: "ALREADY_REFUNDED" })} type="button" className={data.scenario === "ALREADY_REFUNDED" ? "scenario-button selected" : "scenario-button"}><span>02</span><strong>Already refunded</strong><small>Duplicate safeguard</small></button>
       <button disabled={busy} onClick={() => mutate("/api/demo/overlay", { scenario: "CONTRADICTORY_DELIVERY" })} type="button" className={data.scenario === "CONTRADICTORY_DELIVERY" ? "scenario-button selected" : "scenario-button"}><span>03</span><strong>Contradictory evidence</strong><small>Evidence safeguard</small></button>
+      <button disabled={busy} onClick={() => mutate("/api/demo/overlay", { scenario: "BUYER_DISPUTE" })} type="button" className={data.scenario === "BUYER_DISPUTE" ? "scenario-button selected" : "scenario-button"}><span>04</span><strong>Buyer opened a dispute</strong><small>Double-payout safeguard</small></button>
     </section>
     <div className="source-banner"><span className={data.sourceTier === "CANONICAL_LEDGER" ? "source-dot canonical" : "source-dot synthetic"} /><strong>{data.sourceTier.replaceAll("_", " ")}</strong><small>Session expires {new Date(data.session.expiresAt).toLocaleTimeString()} · provider writes disabled</small></div>
     <section className="comparison-grid">

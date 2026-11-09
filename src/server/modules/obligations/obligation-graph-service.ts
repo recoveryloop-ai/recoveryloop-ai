@@ -4,6 +4,7 @@ import type { TransactionSql } from "postgres";
 
 import { createDatabase } from "../../db/client";
 import { AppError } from "../../http/app-error";
+import { readOrderDisputeState } from "../disputes/dispute-repository";
 import { deriveObligation, type ObligationEngineOutput } from "./obligation-engine";
 
 type EvidenceTier = "PROVIDER_VERIFIED" | "PROVIDER_TEST" | "MERCHANT_ATTESTED" | "SYNTHETIC";
@@ -357,6 +358,7 @@ export async function readCaseObligation(
       where cs.external_ref = ${caseRef} order by e.id`;
     if (evidence.length === 0) throw new AppError("CASE_EVIDENCE_NOT_FOUND", 409);
     const evidenceHash = hashJson(evidence.map((item) => `${item.id}:${item.payload_hash}`));
+    const dispute = await client.begin((sql) => readOrderDisputeState(sql, record.order_id));
 
     return deriveObligation({
       fixtureId: record.fixture_id,
@@ -380,6 +382,7 @@ export async function readCaseObligation(
       evidenceIds: evidence.map((item) => item.id),
       evidenceHash,
       unknownPaymentOutcome: record.unknown_payment_count > 0,
+      disputeState: dispute.state,
     });
   } finally {
     await client.end();

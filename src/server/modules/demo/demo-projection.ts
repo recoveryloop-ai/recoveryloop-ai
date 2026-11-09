@@ -33,6 +33,17 @@ export function projectDemoScenario(base: ObligationEngineOutput, scenario: Demo
       avoidedDuplicateExposureMinor: base.entitledMinor,
       evidenceHash: createHash("sha256").update(`${base.evidenceHash}:already-refunded`).digest("hex"),
     });
+  } else if (scenario === "BUYER_DISPUTE") {
+    // The buyer opened a PayPal dispute on the capture. The obligation still exists, but it
+    // must now be settled through the dispute; a refund on top would pay the buyer twice.
+    after = Object.freeze({
+      ...base,
+      decision: "BLOCKED",
+      reasonCodes: Object.freeze(["DISPUTE_OPEN"] as const),
+      proposedRefundMinor: 0,
+      avoidedDuplicateExposureMinor: base.proposedRefundMinor,
+      evidenceHash: createHash("sha256").update(`${base.evidenceHash}:buyer-dispute`).digest("hex"),
+    });
   } else if (scenario === "CONTRADICTORY_DELIVERY") {
     after = Object.freeze({
       ...base,

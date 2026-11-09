@@ -32,6 +32,16 @@ describe("judge session security", () => {
     expect(base).toMatchObject({ decision: "ALLOWED", proposedRefundMinor: 10_000 });
   });
 
+  it("projects a buyer dispute as a blocked refund without touching the canonical ledger", () => {
+    const projected = projectDemoScenario(base, "BUYER_DISPUTE");
+    expect(projected.after).toMatchObject({ decision: "BLOCKED", proposedRefundMinor: 0, outstandingMinor: 10_000, avoidedDuplicateExposureMinor: 10_000 });
+    expect(projected.diff.reasonCodesAdded).toEqual(["DISPUTE_OPEN"]);
+    expect(projected.sourceTier).toBe("SYNTHETIC_SESSION_OVERLAY");
+    expect(projected.providerWrite).toBe(false);
+    expect(projected.after.evidenceHash).not.toBe(base.evidenceHash);
+    expect(base).toMatchObject({ decision: "ALLOWED", proposedRefundMinor: 10_000, reasonCodes: ["REFUND_ELIGIBLE"] });
+  });
+
   it("blocks contradictory evidence and labels it synthetic", () => {
     const projected = projectDemoScenario(base, "CONTRADICTORY_DELIVERY");
     expect(projected.sourceTier).toBe("SYNTHETIC_SESSION_OVERLAY");

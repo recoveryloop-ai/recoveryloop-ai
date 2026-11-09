@@ -6,6 +6,7 @@ import type { PaymentProvider, PaymentRefund } from "../../adapters/payments/pay
 import { PayPalProviderError } from "../../adapters/payments/paypal-sandbox-provider";
 import { createDatabase } from "../../db/client";
 import { AppError } from "../../http/app-error";
+import { isDisputeGuardViolation, readOrderDisputeState } from "../disputes/dispute-repository";
 import { deriveObligation, type ObligationEngineOutput } from "../obligations/obligation-engine";
 import {
   actionAllowsProviderPost,
@@ -97,6 +98,21 @@ function isUniqueViolation(error: unknown): boolean {
   return typeof error === "object" && error !== null && "code" in error && error.code === "23505";
 }
 
+function rethrowDisputeGuard(error: unknown): never {
+  if (isDisputeGuardViolation(error)) throw new AppError("DISPUTE_OPEN", 409);
+  throw error;
+}
+
+type DisputeBlockCode = "DISPUTE_OPEN" | "DISPUTE_PAID_TO_BUYER";
+type RefundBlockCode = DisputeBlockCode | "APPROVAL_STALE";
+
+/** A dispute block is reported by name rather than as a generic stale approval. */
+function disputeBlockCode(obligation: ObligationEngineOutput): DisputeBlockCode | null {
+  if (obligation.reasonCodes.includes("DISPUTE_PAID_TO_BUYER")) return "DISPUTE_PAID_TO_BUYER";
+  if (obligation.reasonCodes.includes("DISPUTE_OPEN")) return "DISPUTE_OPEN";
+  return null;
+}
+
 function assertProviderRefundBinding(refund: PaymentRefund, expectedId: string | null, amountMinor: number): void {
   if (
     (expectedId !== null && refund.providerRefundId !== expectedId)
@@ -180,6 +196,8 @@ async function lockedFinancialContext(
       coalesce((select count(*)::int from actions a where a.obligation_id = ${row.obligation_id}
         and a.state = 'UNKNOWN' and (${excludedActionId}::uuid is null or a.id <> ${excludedActionId}::uuid)), 0) as unknown_actions`;
   if (!balances) throw new AppError("REFUND_BALANCE_READ_FAILED", 500);
+  // Read under the order lock taken above; dispute ingestion takes the same lock.
+  const dispute = await readOrderDisputeState(sql, row.order_id);
 
   const obligation = deriveObligation({
     fixtureId: row.fixture_id ?? row.case_ref,
@@ -203,6 +221,7 @@ async function lockedFinancialContext(
     evidenceIds,
     evidenceHash,
     unknownPaymentOutcome: balances.unknown_actions > 0,
+    disputeState: dispute.state,
   });
   return { row, obligation, evidenceIds, evidenceHash };
 }
@@ -240,7 +259,7 @@ export class RefundActionService {
         const actor = await operatorContext(sql, authSubject);
         const context = await lockedFinancialContext(sql, caseRef, actor.merchantId, null);
         if (context.obligation.decision !== "ALLOWED" || context.obligation.proposedRefundMinor <= 0) {
-          throw new AppError(context.obligation.reasonCodes[0] ?? "REFUND_NOT_ALLOWED", 409);
+          throw new AppError(disputeBlockCode(context.obligation) ?? context.obligation.reasonCodes[0] ?? "REFUND_NOT_ALLOWED", 409);
         }
         const snapshot = proposalSnapshot(context);
         const snapshotHash = hashJson(snapshot);
@@ -311,12 +330,13 @@ export class RefundActionService {
             || context.obligation.proposedRefundMinor !== proposal.amount_minor
             || context.obligation.decision !== "ALLOWED";
           if (stale) {
+            const code: RefundBlockCode = disputeBlockCode(context.obligation) ?? "APPROVAL_STALE";
             await sql`update proposals set status = 'BLOCKED', updated_at = now() where id = ${proposal.id}`;
             await sql`insert into audit_events (merchant_id, actor, case_id, event_type, details_hash, details)
               values (${actor.merchantId}, ${authSubject}, ${proposal.case_id}, 'REFUND_APPROVAL_BLOCKED',
-                ${hashJson({ proposalId, code: "APPROVAL_STALE" })},
-                ${JSON.stringify({ proposalId, code: "APPROVAL_STALE" })}::jsonb)`;
-            return { blockedCode: "APPROVAL_STALE" as const };
+                ${hashJson({ proposalId, code })},
+                ${JSON.stringify({ proposalId, code })}::jsonb)`;
+            return { blockedCode: code };
           }
 
           const actionId = randomUUID();
@@ -336,6 +356,7 @@ export class RefundActionService {
         return result;
       } catch (error) {
         if (isUniqueViolation(error)) throw new AppError("REFUND_RESERVED", 409);
+        if (isDisputeGuardViolation(error)) throw new AppError("DISPUTE_OPEN", 409);
         throw error;
       }
     } finally {
@@ -391,12 +412,15 @@ export class RefundActionService {
           || context.obligation.decision !== "ALLOWED"
           || context.obligation.proposedRefundMinor !== action.amount_minor;
         if (stale) {
-          await sql`update actions set state = 'BLOCKED', failure_code = 'APPROVAL_STALE', updated_at = now() where id = ${action.id}`;
+          // Releasing the reservation (BLOCKED) is what lets a later, legitimate remedy proceed
+          // once the dispute closes without a payout. No provider call has been made.
+          const code: RefundBlockCode = disputeBlockCode(context.obligation) ?? "APPROVAL_STALE";
+          await sql`update actions set state = 'BLOCKED', failure_code = ${code}, updated_at = now() where id = ${action.id}`;
           await sql`update proposals set status = 'BLOCKED', updated_at = now() where id = ${action.proposal_id}`;
           await sql`insert into audit_events (merchant_id, actor, case_id, action_id, event_type, details_hash, details)
             values (${actor.merchantId}, ${authSubject}, ${action.case_id}, ${action.id}, 'REFUND_EXECUTION_BLOCKED',
-              ${hashJson({ actionId, code: "APPROVAL_STALE" })}, ${JSON.stringify({ actionId, code: "APPROVAL_STALE" })}::jsonb)`;
-          return { blockedCode: "APPROVAL_STALE" as const };
+              ${hashJson({ actionId, code })}, ${JSON.stringify({ actionId, code })}::jsonb)`;
+          return { blockedCode: code };
         }
         await sql`update actions set state = 'EXECUTING', executed_at = now(), updated_at = now() where id = ${action.id}`;
         await sql`insert into audit_events (merchant_id, actor, case_id, action_id, event_type, details_hash, details)
@@ -404,7 +428,7 @@ export class RefundActionService {
             ${hashJson({ actionId, requestId: action.request_id })},
             ${JSON.stringify({ actionId, requestId: action.request_id, provider: "PAYPAL_SANDBOX" })}::jsonb)`;
         return { blockedCode: null, requestId: action.request_id, amountMinor: action.amount_minor, caseId: action.case_id };
-      });
+      }).catch(rethrowDisputeGuard);
       if (claim.blockedCode) throw new AppError(claim.blockedCode, 409);
 
       let initial: PaymentRefund;
