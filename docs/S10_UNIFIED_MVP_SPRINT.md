@@ -1,6 +1,6 @@
 # S10 — Unified case investigation MVP
 
-Status: AUTHORIZED, discovery and readiness in progress. Branch: `feat/s10-case-workspace`. One implementation PR; no separate feature sprints. Date: 9 November 2026.
+Status: IMPLEMENTED, local final verification and independent PR review in progress. Branch: `feat/s10-case-workspace`. One implementation PR; no separate feature sprints. Date: 9 November 2026.
 
 ## Outcome and stop condition
 
@@ -62,4 +62,8 @@ Rollback app to prior accepted deployment/commit; preserve ledger and investigat
 
 ## RESUME
 
-Last completed baseline: `60909da`; no PR yet. No S10 code edits yet. Dependency install succeeded (417 packages, zero vulnerabilities). Z.ai readiness, DB S7 verifier, baseline tests/build started; collect sessions before rerunning. Vercel connector cannot find project; browser runtime reports no browsers. Sandbox DNS blocks direct network; approved elevated dependency/git commands work. No PayPal write attempted. Next safe step: finish readiness/discovery, commit this brief and ADR/contract before code, then implement inventory and tests on this branch.
+S10 brief committed as `84da23e`; ADR/contract committed as `485db04`. Full implementation is on `feat/s10-case-workspace`; one draft PR is being prepared. Eight real GLM scenario runs are stored and validated. No PayPal write occurred. Sandbox capture raw status is PARTIALLY_REFUNDED USD250; existing refund GET confirms COMPLETED USD100; EasyPost test GET confirms RTS. One incomplete model attempt failed closed before the loop was corrected.
+
+Local lint/typecheck pass; 107 unit tests pass; webpack production build passes. S1–S7 DB invariants pass after preserving and extending exact table/FK checks for additive S10 data. S10 DB verifier confirms RLS, tenant denial, stale-input denial, task replay/audited override and unchanged ledger. Full 30-test desktop/mobile matrix is running, followed by two authenticated task integration tests. Inspect confirmation screenshots, collect exact results, commit/push one PR, release independent fresh-context product and technical reviewers, address findings and rerun focused checks.
+
+Latest owner clarification: hosting belongs to another person; focus implementation and **do not interact with Vercel deployment**. Therefore do not deploy, promote or merge into the automatically deployed main branch. Deliver the reviewed implementation PR for the owner's hosting workflow. Registration/eligibility, YouTube and Devpost URLs remain unverified/open. No financial write may be repeated to resume.

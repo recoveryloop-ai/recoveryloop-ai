@@ -12,7 +12,7 @@ export default async function CommandCenterPage() {
     <AppShell active="/app">
       <header className="workspace-header s7-header">
         <div><p className="eyebrow">Live sandbox ledger</p><h1>Recovery command</h1><p>One accountable view of payment, fulfillment, obligation, and remedy.</p></div>
-        <Link className="button primary compact" href="/app/demo">Run judge demo <span>→</span></Link>
+        <Link className="button primary compact" href="/app/cases/RG-2048">Open reference case <span>→</span></Link>
       </header>
       <section className="metric-grid s7-metrics" aria-label="Ledger overview">
         <article><span>Canonical orders</span><strong>{summary.order_count}</strong><small>Persisted merchant records</small></article>

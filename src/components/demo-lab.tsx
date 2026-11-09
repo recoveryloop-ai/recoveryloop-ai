@@ -37,18 +37,9 @@ export function DemoLab() {
     try {
       const response = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, ...(body ? { body: JSON.stringify(body) } : {}) });
       if (!response.ok) throw new Error("The isolated demo change was rejected.");
-      const scenario = path.endsWith("/reset") ? "BASELINE" : (body as { scenario: DemoState["scenario"] }).scenario;
-      const current = data;
-      if (!current) throw new Error("The demo state is not ready.");
-      const after = scenario === "BASELINE" ? current.before : scenario === "ALREADY_REFUNDED"
-        ? { ...current.before, decision: "BLOCKED" as const, reasonCodes: ["REFUND_ALREADY_SETTLED"] as const, realizedRefundMinor: current.before.entitledMinor, outstandingMinor: 0, proposedRefundMinor: 0, avoidedDuplicateExposureMinor: current.before.entitledMinor }
-        : { ...current.before, decision: "BLOCKED" as const, reasonCodes: ["EVIDENCE_CONTRADICTS_ADDRESS"] as const, proposedRefundMinor: 0 };
-      setData({ ...current, scenario, sourceTier: scenario === "BASELINE" ? "CANONICAL_LEDGER" : "SYNTHETIC_SESSION_OVERLAY", after,
-        diff: { decision: { before: current.before.decision, after: after.decision },
-          proposedRefundMinor: { before: current.before.proposedRefundMinor, after: after.proposedRefundMinor, delta: after.proposedRefundMinor - current.before.proposedRefundMinor },
-          outstandingMinor: { before: current.before.outstandingMinor, after: after.outstandingMinor, delta: after.outstandingMinor - current.before.outstandingMinor },
-          avoidedDuplicateExposureMinor: { before: current.before.avoidedDuplicateExposureMinor, after: after.avoidedDuplicateExposureMinor, delta: after.avoidedDuplicateExposureMinor - current.before.avoidedDuplicateExposureMinor },
-          reasonCodesAdded: after.reasonCodes.filter((code) => !current.before.reasonCodes.includes(code)) } });
+      const stateResponse = await fetch("/api/demo/state", { cache: "no-store" });
+      if (!stateResponse.ok) throw new Error("Unable to read the server projection after the change.");
+      setData(await stateResponse.json() as DemoState);
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Demo change failed."); }
     finally { setBusy(false); }
   }

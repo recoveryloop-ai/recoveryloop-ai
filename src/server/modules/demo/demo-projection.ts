@@ -42,6 +42,13 @@ export function projectDemoScenario(base: ObligationEngineOutput, scenario: Demo
       evidenceHash: createHash("sha256").update(`${base.evidenceHash}:contradictory-delivery`).digest("hex"),
     });
   }
+  if (scenario === "PENDING_REFUND") {
+    after = Object.freeze({ ...base, decision: "BLOCKED", reasonCodes: Object.freeze(["REFUND_RESERVED", "UNKNOWN_PAYMENT_OUTCOME"] as const), pendingReservationMinor: base.outstandingMinor, captureRemainingMinor: Math.max(0, base.captureRemainingMinor - base.outstandingMinor), proposedRefundMinor: 0, evidenceHash: createHash("sha256").update(`${base.evidenceHash}:${scenario}`).digest("hex") });
+  }
+  if (["DAMAGED_ITEM", "NOT_RECEIVED", "DISPUTE_INQUIRY", "ENTITY_REVIEW"].includes(scenario)) {
+    // New evidence questions do not inherit the RTS fixture's financial eligibility.
+    after = Object.freeze({ ...base, decision: "BLOCKED", reasonCodes: Object.freeze(["NO_REFUND_OBLIGATION"] as const), entitledMinor: 0, outstandingMinor: 0, proposedRefundMinor: 0, evidenceHash: createHash("sha256").update(`${base.evidenceHash}:${scenario}`).digest("hex") });
+  }
   const added = after.reasonCodes.filter((code) => !base.reasonCodes.includes(code));
   return {
     scenario,

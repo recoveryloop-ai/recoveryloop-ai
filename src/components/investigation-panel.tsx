@@ -5,9 +5,10 @@ import { useState } from "react";
 import type { InvestigationResult } from "@/server/modules/investigation/contracts";
 import { formatMoney, money } from "@/shared/money";
 
-export function InvestigationPanel({ caseRef, initial }: {
+export function InvestigationPanel({ caseRef, initial, canRun = false }: {
   readonly caseRef: string;
   readonly initial: InvestigationResult | null;
+  readonly canRun?: boolean;
 }) {
   const [result, setResult] = useState(initial);
   const [state, setState] = useState<"idle" | "running" | "error">("idle");
@@ -41,7 +42,7 @@ export function InvestigationPanel({ caseRef, initial }: {
         <p className="eyebrow">Evidence-grounded investigator</p>
         <h2>No investigation has been recorded yet</h2>
         <p>An authenticated operator can run the bounded Z.ai investigator. Financial decisions remain deterministic.</p>
-        <button className="button primary compact" disabled={state === "running"} onClick={runInvestigation} type="button">
+        <button className="button primary compact" disabled={!canRun || state === "running"} onClick={runInvestigation} type="button">
           {state === "running" ? "Investigating…" : "Run investigation"}
         </button>
         {message ? <p className="form-error" role="alert">{message}</p> : null}
@@ -75,8 +76,8 @@ export function InvestigationPanel({ caseRef, initial }: {
           <small>No amount or provider action is authorized by the model.</small>
         </div>
         <p className="investigation-caveat">{result.output.caveat}</p>
-        <button className="button secondary compact" disabled={state === "running"} onClick={runInvestigation} type="button">
-          {state === "running" ? "Investigating…" : "Run fresh investigation"}
+        <button className="button secondary compact" disabled={!canRun || state === "running"} onClick={runInvestigation} type="button">
+          {!canRun ? "Operator sign-in required for fresh AI" : state === "running" ? "Investigating…" : "Run fresh investigation"}
         </button>
         {message ? <p className="form-error" role="alert">{message}</p> : null}
       </section>

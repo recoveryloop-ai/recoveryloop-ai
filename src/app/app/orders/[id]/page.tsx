@@ -16,9 +16,19 @@ function maskProviderId(value: string): string {
 
 export default async function OrderReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const authorization = await requireOperator();
-  if (!authorization.authorized) redirect("/login");
   const { id } = await params;
   if (!isUuid(id)) notFound();
+  if (!authorization.authorized) {
+    const { client: publicClient } = createDatabase(process.env.DATABASE_URL ?? "");
+    let caseRef: string | undefined;
+    try {
+      const [row] = await publicClient<{ external_ref: string }[]>`select cs.external_ref from cases cs join orders o on o.id = cs.order_id where o.id = ${id} and cs.external_ref ~ '^RG-[0-9]{4,10}$' order by cs.created_at limit 1`;
+      caseRef = row?.external_ref;
+    } finally { await publicClient.end(); }
+    if (caseRef) redirect(`/app/cases/${caseRef}`);
+    // Public order list remains available when no case exists; provider receipt stays protected.
+    redirect("/app/orders");
+  }
   const { client } = createDatabase(process.env.DATABASE_URL ?? "");
   try {
     const [receipt] = await client<{

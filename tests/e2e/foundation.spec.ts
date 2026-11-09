@@ -75,7 +75,8 @@ test("S5 case narrative exposes validated citations and deterministic authority"
   test.skip(!process.env.DATABASE_URL, "The public CI job intentionally has no database credential.");
   const response = await page.goto("/app/cases/RG-2048");
   expect(response?.status()).toBe(200);
-  await expect(page.getByRole("heading", { name: "Investigation" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Return To Sender", exact: true })).toBeVisible();
+  await page.getByText("Accepted v1 investigation · Investigation", { exact: true }).click();
   await expect(page.getByText("Z.ai validated", { exact: true })).toBeVisible();
   await expect(page.getByText("No provider writes", { exact: false })).toBeVisible();
   await expect(page.getByText("$100.00 simulated policy amount", { exact: true })).toBeVisible();

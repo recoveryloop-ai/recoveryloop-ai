@@ -26,3 +26,8 @@ Official close as documented in blueprint: 13 November 2026 at 01:00 PKT; intern
 ## Next owner prompt
 
 > Use `docs/DEMO_SCRIPT.md` to publish the final YouTube video, add its URL to `docs/SUBMISSION_CHECKLIST.md`, review the prepared Devpost copy, submit it, and add the public Devpost URL. Preserve the verified release and do not add post-MVP scope.
+
+
+## S10 implementation in progress
+
+The owner authorized the unified S10 case-work MVP in `handoff-prompts/NEXT_AGENT.md`; its brief and resume checkpoint are in `docs/S10_UNIFIED_MVP_SPRINT.md`. S0–S8 remain accepted history. On 9 November 2026 the owner clarified that hosting belongs to another person and this task must focus on implementation without interacting with Vercel deployment. Deliver one reviewed PR; hosting release and production verification are separate owner gates. See `docs/S10_IMPLEMENTATION_REPORT.md` for current evidence and limitations.
