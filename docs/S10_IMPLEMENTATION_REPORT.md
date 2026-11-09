@@ -73,7 +73,7 @@ RTK was used to condense command output. No numeric token-savings claim is made;
 | `rtk proxy npx tsx scripts/s10/attest-stored-runs.ts` | PASS — 8 stored runs revalidated; 8 append-only attestations; zero original audit rows changed; zero provider calls/financial writes |
 | Read-only canonical audit assertion using `hashAuditDetails` after JSONB round-trip | PASS — 8 canonical run attestations; no provider/financial writes |
 | `rtk git diff --check` | PASS — exit 0 |
-| Configured-secret staged-file scan | PASS — 44 files at implementation checkpoint, zero configured secret matches; final scan recorded in command evidence |
+| Configured-secret staged-file scan | PASS — 44 files at implementation checkpoint, zero configured secret matches; final tracked-file scan: 233 files, zero configured secret matches; `.env.local` is not tracked |
 
 The final focused browser tests use the latest build after audit/prompt hardening. They actually authenticate the configured operator, create a task from an existing validated run, replay it idempotently, retrieve it after page load, override it through the UI, confirm two audit events and remove only their test task/audit records. They make no fresh model or financial provider call. They also assert the final honest baseline label, protected task GET, certificate link and no horizontal overflow.
 
@@ -91,7 +91,7 @@ Root also found and fixed a run-audit hash defect: the run ID had been added to 
 
 ## Branch, PR, CI and release status
 
-Implementation checkpoint: `90e06c7`; final hardening/report checkpoint follows on the same pushed branch `feat/s10-case-workspace`. Compare: https://github.com/recoveryloop-ai/recoveryloop-ai/compare/main...feat/s10-case-workspace .
+Implementation checkpoint: `90e06c7`; final reviewed code/hardening checkpoint: `8ce3c07`, on pushed branch `feat/s10-case-workspace`. Compare: https://github.com/recoveryloop-ai/recoveryloop-ai/compare/main...feat/s10-case-workspace .
 
 The GitHub connector rejected PR creation with `403 Resource not accessible by integration`. The owner then said they will create the PR and requested independent reviews/final checks locally; those are complete. No PR URL or PR CI run is claimed. The repository workflow runs on PRs/main, so feature-branch local verification is not a CI pass. The agent did not merge or change main.
 

@@ -62,7 +62,7 @@ Rollback app to prior accepted deployment/commit; preserve ledger and investigat
 
 ## RESUME
 
-S10 brief committed as `84da23e`; ADR/contract as `485db04`; implementation as `90e06c7`, followed by the final hardening/report commit on this same branch. Eight real validated GLM scenario runs and their append-only audit attestations are stored. No PayPal write occurred. Original sandbox capture raw status PARTIALLY_REFUNDED USD250 and existing refund COMPLETED USD100 were observed by GET; EasyPost test GET confirms RTS. One incomplete model attempt failed closed before correction.
+S10 brief committed as `84da23e`; ADR/contract as `485db04`; implementation as `90e06c7`; final reviewed code/hardening as `8ce3c07` on this same branch. Eight real validated GLM scenario runs and their append-only audit attestations are stored. No PayPal write occurred. Original sandbox capture raw status PARTIALLY_REFUNDED USD250 and existing refund COMPLETED USD100 were observed by GET; EasyPost test GET confirms RTS. One incomplete model attempt failed closed before correction.
 
 Local lint/typecheck, 108 unit tests, webpack production build, 30 full-matrix plus 4 final focused desktop/mobile tests pass. S1–S7 DB checks pass; S10 checks prove 8 stored runs, RLS, merchant isolation, retired-prompt/stale-input denial, idempotent audited task override and unchanged financial ledger. Both independent fresh-context reviews report no blocker; both P3 findings are addressed. Reports/screenshots are linked in `S10_IMPLEMENTATION_REPORT.md` and `S10_REVIEW_REPORT.md`.
 
