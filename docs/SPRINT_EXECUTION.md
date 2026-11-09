@@ -34,3 +34,7 @@ Drop live disputes, third-party claim submission, AG Grid bonus integration, ext
 
 ## Judge journey smoke test
 Fresh incognito visit -> Explore demo -> Cases -> Orders -> Recovery Map -> Action Center read-only -> Demo Lab simulate paid/refunded mismatch -> diff updates -> reset -> case remains provider-consistent. Direct unauthenticated POST to execute/refund returns 401/403. Operator can perform real PayPal sandbox flow only with explicit approval.
+
+## S9 addendum — product handoff (9 November 2026)
+
+S0–S8 remain the accepted release baseline. S9 is a documentation-only handoff sprint authorized by the owner. Its sprint brief is `handoff-prompts/S9_PRODUCT_HANDOFF_SPRINT.md`; the next-agent brief and evidence ledger are in the same folder. The owner's target is a production-ready MVP by 12 November, with implementation by the **next** agent. S9 does not change product behavior, execute provider calls, or claim production readiness. The existing sandbox-only and operator/public boundaries remain binding. The next agent must write and commit each implementation sprint document before releasing implementation subagents, then use independent fresh-context product review before each PR merge.
