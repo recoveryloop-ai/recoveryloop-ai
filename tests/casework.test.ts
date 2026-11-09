@@ -119,3 +119,11 @@ it("rules-only fallback never marks blocked policy ready for review",()=>{
  const ctx=context();ctx.obligation={...ctx.obligation,decision:"BLOCKED",proposedRefundMinor:0,reasonCodes:["CAPTURE_NOT_COMPLETED"]};
  expect(rulesCasework(ctx).outcome).not.toBe("READY_FOR_POLICY_REVIEW");
 });
+
+it("audit hashes include the persisted run ID and survive JSONB key reordering",async()=>{
+ const {hashAuditDetails}=await import("../src/server/modules/casework/audit-hash");
+ const original={runId:"run-a",details:{outcome:"NO_ACTION",evidence:["a","b"]}};
+ const reordered={details:{evidence:["a","b"],outcome:"NO_ACTION"},runId:"run-a"};
+ expect(hashAuditDetails(original)).toBe(hashAuditDetails(reordered));
+ expect(hashAuditDetails(original)).not.toBe(hashAuditDetails({...original,runId:"run-b"}));
+});

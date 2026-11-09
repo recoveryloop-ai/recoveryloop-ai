@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import { hashAuditDetails } from "../../src/server/modules/casework/audit-hash";
 import { createDatabase } from "../../src/server/db/client";
 import { loadCaseworkContext } from "../../src/server/modules/casework/scenarios";
 import { rulesCasework, validateCasework } from "../../src/server/modules/casework/decision";
@@ -37,6 +38,8 @@ try {
     if (context.evidenceHash !== run.evidence_hash || !checked.output) throw new Error(`S10_STORED_RUN_INVALID:${run.id}:${checked.code}`);
   }
 
+  const runAttestations=await client<{details:unknown;details_hash:string}[]>`select details,details_hash from audit_events where event_type='CASEWORK_RUN_ATTESTED'`;
+  if(runAttestations.some(event=>hashAuditDetails(event.details)!==event.details_hash))throw Error("S10_RUN_ATTESTATION_HASH_FAILED");
   const context = await loadCaseworkContext(databaseUrl, "RG-2048");
   const output = { ...rulesCasework(context), outcome: "REQUEST_EVIDENCE" as const };
   const checked = validateCasework(output, context);
@@ -53,6 +56,11 @@ try {
   const model = "s10-db-verifier";
   const responseHash = createHash("sha256").update("s10-db-verifier-no-provider-call").digest("hex");
   await client`insert into casework_runs(id,case_id,scenario,evidence_hash,model,prompt_version,output_json,tool_log,provider_response_hash,prompt_tokens,completion_tokens) values(${fixtureRunId},${context.case.id},'BASELINE',${context.evidenceHash},${model},'s10-verifier-only',${JSON.stringify(output)}::jsonb,'[]'::jsonb,${responseHash},0,0)`;
+  let retiredPromptDenied=false;
+  try {await createInternalTask(databaseUrl,"RG-2048",actor.auth_subject,fixtureRunId);}catch(error){retiredPromptDenied=error instanceof Error&&error.message==="CASEWORK_PROMPT_VERSION_UNSUPPORTED";}
+  if(!retiredPromptDenied)throw Error("S10_RETIRED_PROMPT_NOT_REJECTED");
+  // The synthetic verifier record stays invisible to public AI reads: model is explicitly not GLM.
+  await client`update casework_runs set prompt_version='casework-v2' where id=${fixtureRunId}`;
   const staleHash = "f".repeat(64);
   await client`update casework_runs set evidence_hash=${staleHash} where id=${fixtureRunId}`;
   let staleRunDenied = false;
@@ -75,9 +83,11 @@ try {
   const audits = await client<{ created: number; overridden: number }[]>`select count(*) filter(where event_type='CASEWORK_TASK_CREATED')::int as created,count(*) filter(where event_type='CASEWORK_TASK_OVERRIDDEN')::int as overridden from audit_events where case_id=${fixtureCaseId} and details->>'taskId'=${fixtureTaskId}`;
   if (audits[0]?.created !== 1 || audits[0]?.overridden !== 1) throw new Error("S10_TASK_AUDIT_FAILED");
 
+  const taskAudits=await client<{details:unknown;details_hash:string}[]>`select details,details_hash from audit_events where details->>'taskId'=${taskId}`;
+  if(taskAudits.some(event=>hashAuditDetails(event.details)!==event.details_hash))throw Error("S10_TASK_AUDIT_HASH_FAILED");
   const after = await ledgerFingerprint();
   if (before !== after) throw new Error("S10_CANONICAL_LEDGER_MUTATED");
-  console.log(JSON.stringify({ status: "PASS", operation: "verify-s10", rlsTables: tables.length, anonAuthenticatedGrants: grants?.count ?? -1, storedRunsValidated: stored.length, merchantDenied, staleRunDenied, taskIdempotent: true, auditedOverride: true, conflictingRevisionDenied, canonicalLedgerStable: true, providerCalls: 0, financialWrites: 0 }));
+  console.log(JSON.stringify({ status: "PASS", operation: "verify-s10", rlsTables: tables.length, anonAuthenticatedGrants: grants?.count ?? -1, storedRunsValidated: stored.length, attestedRunHashes:runAttestations.length, merchantDenied, retiredPromptDenied, staleRunDenied, taskIdempotent: true, auditedOverride: true, conflictingRevisionDenied, canonicalLedgerStable: true, providerCalls: 0, financialWrites: 0 }));
 } finally {
   if (fixtureTaskId) await client`delete from casework_tasks where id=${fixtureTaskId}`;
   if (fixtureTaskId) await client`delete from audit_events where case_id=${fixtureCaseId} and details->>'taskId'=${fixtureTaskId}`;

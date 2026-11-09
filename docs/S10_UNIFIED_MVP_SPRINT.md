@@ -1,6 +1,6 @@
 # S10 — Unified case investigation MVP
 
-Status: IMPLEMENTED, local final verification and independent PR review in progress. Branch: `feat/s10-case-workspace`. One implementation PR; no separate feature sprints. Date: 9 November 2026.
+Status: IMPLEMENTED AND LOCALLY VERIFIED; independent local reviews complete; owner PR/release pending. Branch: `feat/s10-case-workspace`. One implementation PR; no separate feature sprints. Date: 9 November 2026.
 
 ## Outcome and stop condition
 
@@ -62,8 +62,8 @@ Rollback app to prior accepted deployment/commit; preserve ledger and investigat
 
 ## RESUME
 
-S10 brief committed as `84da23e`; ADR/contract committed as `485db04`. Full implementation is on `feat/s10-case-workspace`; one draft PR is being prepared. Eight real GLM scenario runs are stored and validated. No PayPal write occurred. Sandbox capture raw status is PARTIALLY_REFUNDED USD250; existing refund GET confirms COMPLETED USD100; EasyPost test GET confirms RTS. One incomplete model attempt failed closed before the loop was corrected.
+S10 brief committed as `84da23e`; ADR/contract as `485db04`; implementation as `90e06c7`, followed by the final hardening/report commit on this same branch. Eight real validated GLM scenario runs and their append-only audit attestations are stored. No PayPal write occurred. Original sandbox capture raw status PARTIALLY_REFUNDED USD250 and existing refund COMPLETED USD100 were observed by GET; EasyPost test GET confirms RTS. One incomplete model attempt failed closed before correction.
 
-Local lint/typecheck pass; 107 unit tests pass; webpack production build passes. S1–S7 DB invariants pass after preserving and extending exact table/FK checks for additive S10 data. S10 DB verifier confirms RLS, tenant denial, stale-input denial, task replay/audited override and unchanged ledger. Full 30-test desktop/mobile matrix is running, followed by two authenticated task integration tests. Inspect confirmation screenshots, collect exact results, commit/push one PR, release independent fresh-context product and technical reviewers, address findings and rerun focused checks.
+Local lint/typecheck, 108 unit tests, webpack production build, 30 full-matrix plus 4 final focused desktop/mobile tests pass. S1–S7 DB checks pass; S10 checks prove 8 stored runs, RLS, merchant isolation, retired-prompt/stale-input denial, idempotent audited task override and unchanged financial ledger. Both independent fresh-context reviews report no blocker; both P3 findings are addressed. Reports/screenshots are linked in `S10_IMPLEMENTATION_REPORT.md` and `S10_REVIEW_REPORT.md`.
 
-Latest owner clarification: hosting belongs to another person; focus implementation and **do not interact with Vercel deployment**. Therefore do not deploy, promote or merge into the automatically deployed main branch. Deliver the reviewed implementation PR for the owner's hosting workflow. Registration/eligibility, YouTube and Devpost URLs remain unverified/open. No financial write may be repeated to resume.
+Owner clarification supersedes earlier sequencing: the owner will create the single PR; independent reviews and checks happen locally. Connector PR creation returned 403. Owner also prohibits Vercel deployment interaction. Do not deploy, promote or merge into automatically deployed main. Next safe step: owner opens PR from `feat/s10-case-workspace`, checks CI and coordinates hosting-owner release. Registration/eligibility and public YouTube/Devpost URLs remain open. Never repeat a PayPal write.

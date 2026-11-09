@@ -79,7 +79,7 @@ export function CaseWorkspace({ caseRef, initial }: { caseRef: string; initial: 
       <div className="cw-item-mark" aria-hidden="true">{data.item.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")}</div>
       <div className="cw-item-copy"><p className="cw-label">Affected item</p><h2 id="cw-item-heading">{data.item.name}</h2><p>{data.item.sku} <span>·</span> Source: {data.item.source}</p></div>
       <div className="cw-state"><span>Latest state</span><strong>{pretty(data.item.state)}</strong></div>
-      <div className="cw-claim"><span>Buyer claim</span><p>{data.buyerClaim}</p></div>
+      <div className="cw-claim"><span>{data.scenario === "BASELINE" ? "Case context" : "Synthetic case account"}</span><p>{data.buyerClaim}</p></div>
     </section>
 
     {data.caseRef === "RG-2048" ? <section className="cw-challenge" aria-labelledby="cw-challenge-heading"><div><p className="cw-label">Synthetic evidence challenge</p><h2 id="cw-challenge-heading">See how this case changes</h2><p>Changes are isolated to this browser session. The refreshed server projection is the source of every displayed result.</p></div><div className="cw-challenge-controls"><label htmlFor="cw-scenario">Choose a scenario</label><select id="cw-scenario" value={data.scenario} disabled={busy || refreshing} onChange={(event) => void changeScenario(event.target.value as CaseworkScenario)}>{scenarios.map((scenario) => <option key={scenario.id} value={scenario.id}>{scenario.label}</option>)}</select><button className="button secondary compact" disabled={busy || refreshing || data.scenario === "BASELINE"} onClick={() => void changeScenario("BASELINE")} type="button">{busy ? "Refreshing case…" : "Reset to baseline"}</button></div></section> : null}

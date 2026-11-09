@@ -1,8 +1,9 @@
-import { createHash } from "node:crypto";
+import { hashAuditDetails } from "./audit-hash";
 import { createDatabase } from "../../db/client";
 import { AppError } from "../../http/app-error";
 import { loadCaseworkContext } from "./scenarios";
 import { validateCasework } from "./decision";
+import { caseworkPromptVersion } from "./investigator";
 export async function assertCaseMerchant(databaseUrl: string, caseRef: string, principalId: string): Promise<string> {
   const { client } = createDatabase(databaseUrl);
   try {
@@ -29,9 +30,11 @@ export async function createInternalTask(databaseUrl: string, caseRef: string, p
         scenario: string;
         output_json: unknown;
         evidence_hash: string;
-      }[]> `select r.case_id,r.scenario,r.output_json,r.evidence_hash from casework_runs r join cases cs on cs.id=r.case_id join orders o on o.id=cs.order_id where r.id=${runId} and cs.external_ref=${caseRef} and o.merchant_id=${merchantId}`;
+        prompt_version: string;
+      }[]> `select r.case_id,r.scenario,r.output_json,r.evidence_hash,r.prompt_version from casework_runs r join cases cs on cs.id=r.case_id join orders o on o.id=cs.order_id where r.id=${runId} and cs.external_ref=${caseRef} and o.merchant_id=${merchantId}`;
       if (!run || run.scenario !== "BASELINE")
         throw new AppError("CANONICAL_VALIDATED_RUN_REQUIRED", 409);
+      if (run.prompt_version !== caseworkPromptVersion) throw new AppError("CASEWORK_PROMPT_VERSION_UNSUPPORTED", 409);
       const current = await loadCaseworkContext(databaseUrl, caseRef);
       const checked = validateCasework(run.output_json, current);
       if (!checked.output || current.evidenceHash !== run.evidence_hash)
@@ -52,7 +55,7 @@ export async function createInternalTask(databaseUrl: string, caseRef: string, p
         return existing;
       }
       const details = { taskId: task.id, runId, outcome: task.outcome, evidenceHash: current.evidenceHash, providerWrite: false };
-      await sql `insert into audit_events(merchant_id,actor,case_id,event_type,details_hash,details) values(${merchantId},${`operator:${principalId}`},${run.case_id},'CASEWORK_TASK_CREATED',${createHash("sha256").update(JSON.stringify(details)).digest("hex")},${JSON.stringify(details)}::jsonb)`;
+      await sql `insert into audit_events(merchant_id,actor,case_id,event_type,details_hash,details) values(${merchantId},${`operator:${principalId}`},${run.case_id},'CASEWORK_TASK_CREATED',${hashAuditDetails(details)},${JSON.stringify(details)}::jsonb)`;
       return task;
     });
   }
@@ -77,7 +80,7 @@ export async function overrideInternalTask(databaseUrl: string, caseRef: string,
         throw new AppError("TASK_OVERRIDE_CONFLICT", 409);
       // Store a reason code, not arbitrary operator prose or PII.
       const details = { taskId: task.id, revision: task.revision, reason, providerWrite: false };
-      await sql `insert into audit_events(merchant_id,actor,case_id,event_type,details_hash,details) values(${merchantId},${`operator:${principalId}`},${task.case_id},'CASEWORK_TASK_OVERRIDDEN',${createHash("sha256").update(JSON.stringify(details)).digest("hex")},${JSON.stringify(details)}::jsonb)`;
+      await sql `insert into audit_events(merchant_id,actor,case_id,event_type,details_hash,details) values(${merchantId},${`operator:${principalId}`},${task.case_id},'CASEWORK_TASK_OVERRIDDEN',${hashAuditDetails(details)},${JSON.stringify(details)}::jsonb)`;
       return task;
     });
   }

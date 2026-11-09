@@ -1,6 +1,6 @@
 # S10 — Unified case investigation MVP report
 
-Status: implementation complete; final verification and independent PR reviews in progress. Not merged or deployed. Owner's 9 November instruction limits this task to implementation and excludes Vercel deployment interaction. One branch: `feat/s10-case-workspace`; one PR to follow. This report will be updated with final results.
+Status: IMPLEMENTATION AND LOCAL VERIFICATION COMPLETE; independent local reviews complete. Not merged or deployed. Owner's 9 November instruction limits this task to implementation and excludes Vercel deployment interaction. One branch: `feat/s10-case-workspace`; the owner will create the single PR. GitHub connector PR creation was denied (403); the owner explicitly took that action and requested independent reviews/final checks locally.
 
 ## Scope and files
 
@@ -45,10 +45,10 @@ RG-2048 uses synthetic payment fixtures plus EasyPost test evidence. RG-2052 is 
 | `npx tsx scripts/s10/read-provider-proof.ts` | Initial FAIL on adapter's conservative post-refund state; authorized raw diagnostic and corrected verifier PASS for capture/refund/test tracker, zero writes |
 | `npm run lint` | PASS — zero errors/warnings after cleanup |
 | `npm run typecheck` | PASS |
-| `npm test` latest | PASS — 23 files, 107 tests |
+| `npm test` latest | PASS — 23 files, 108 tests |
 | `npx tsx scripts/db/verify-s10.ts` | PASS — three RLS tables, zero public grants, current stored citations, second-merchant denial, stale run denial, idempotent task, audited override, revision conflict denial, unchanged canonical ledger, zero provider calls |
 
-Earlier browser failures disclosed: missing Origin in API tests (correctly denied); navigation assertions too short for DB-backed route; a real mobile hero artwork overlay intercepted the entry link and was fixed with pointer-events disabled; a new test expected the wrong certificate heading. No security assertion was weakened. Original S2/S3 verifiers initially failed because the additive table inventory/FK dependents were not included; original assertions are preserved in the extended checks. Final commands, screenshot paths, exact E2E/DB totals, PR/CI and review findings will be recorded below.
+Earlier browser failures disclosed: missing Origin in API tests (correctly denied); navigation assertions too short for DB-backed route; a real mobile hero artwork overlay intercepted the entry link and was fixed with pointer-events disabled; a new test expected the wrong certificate heading. No security assertion was weakened. Original S2/S3 verifiers initially failed because the additive table inventory/FK dependents were not included; original assertions are preserved in the extended checks. Final evidence and review findings follow.
 
 ## Invariants and limits
 
@@ -56,6 +56,47 @@ Model outputs contain only strict issue/outcome/proof/citation enums; unknown fi
 
 Public changes stay in signed, expiring judge sessions. Completed refunds, pending reservations, proposed amounts and hypothetical recoveries remain separate. Source labels distinguish actual sandbox proof, test shipment data, merchant attestations, synthetic fixtures/overlays and model interpretation. Unavailable/currently stale AI yields labeled rules-only work. Production live-money/customer/privacy/security/operations gates remain unpassed, described in `S10_OPERATIONS.md`.
 
-## RESUME
+## Final exact local gates
 
-Implementation is on the single S10 branch. No merge/deployment is authorized after the owner's latest instruction. Finish final fixed-build browser matrix and DB regression loop, inspect desktop/mobile screenshots, commit/push the one PR, then release fresh-context product and security reviewers against its full diff and local journey. Address findings, run focused checks and update this report. Never repeat a PayPal write to resume. Owner retains video publication, registration/eligibility confirmation, Devpost submission and hosting release.
+RTK was used to condense command output. No numeric token-savings claim is made; its local tracking database was unavailable.
+
+| Exact final command | Result |
+|---|---|
+| `rtk npm run lint` | PASS — exit 0, zero errors/warnings |
+| `rtk npm run typecheck` | PASS — exit 0 |
+| `rtk npm test` | PASS — exit 0, 23 files / 108 tests |
+| `rtk npm run build -- --webpack` | PASS — exit 0, optimized production build |
+| `rtk proxy npm run test:e2e` | PASS — exit 0, 30 desktop/mobile tests in 9.6 minutes |
+| `rtk proxy npm run test:e2e -- --grep 'authenticated operator records\|final case provenance' --output=/private/tmp/recoveryloop-s10-final-e2e` | PASS — exit 0, 4 final desktop/mobile tests in 3.0 minutes |
+| `rtk npm run db:verify:s1` through `rtk npm run db:verify:s7` | PASS — original fixture, receipt, ingestion/rollback, policy/concurrency, v1 AI, financial reservation/certificate and public-session/ledger invariants |
+| `rtk proxy npx tsx scripts/db/verify-s10.ts` | PASS — 8 stored runs, 3 RLS tables, zero public grants, second-merchant denial, retired-prompt denial, stale-run denial, task replay, audited override/revision denial, stable ledger, zero provider calls/financial writes |
+| `rtk proxy npx tsx scripts/s10/attest-stored-runs.ts` | PASS — 8 stored runs revalidated; 8 append-only attestations; zero original audit rows changed; zero provider calls/financial writes |
+| Read-only canonical audit assertion using `hashAuditDetails` after JSONB round-trip | PASS — 8 canonical run attestations; no provider/financial writes |
+| `rtk git diff --check` | PASS — exit 0 |
+| Configured-secret staged-file scan | PASS — 44 files at implementation checkpoint, zero configured secret matches; final scan recorded in command evidence |
+
+The final focused browser tests use the latest build after audit/prompt hardening. They actually authenticate the configured operator, create a task from an existing validated run, replay it idempotently, retrieve it after page load, override it through the UI, confirm two audit events and remove only their test task/audit records. They make no fresh model or financial provider call. They also assert the final honest baseline label, protected task GET, certificate link and no horizontal overflow.
+
+## Walkthrough and UI proof
+
+Labeled automated self-run, not customer validation: `/` → Explore demo → Cases → RG-2048 → provenance → four synthetic variants → reset → separate RG-2052 certificate. The successful scripted path uses 10 UI interactions, with zero wrong turns in that prescribed path. Assertions identify the keyboard/current returned state, model-selected nonfinancial step versus deterministic money policy, synthetic result versus actual PayPal cash, pending versus completed amounts, and the separate certificate. No claim of novice comprehension or measured merchant time savings follows from these assertions. Earlier failed self-run exposed one real mobile entry defect (decorative artwork blocked taps), corrected and covered by both device journeys.
+
+Eight local screenshots are archived under `artifacts/s10/` (Git-ignored): `desktop-case.png`, `mobile-case.png`, `desktop-conflict.png`, `mobile-conflict.png`, `desktop-certificate.png`, `mobile-certificate.png`, `desktop-operator.png`, `mobile-operator.png`. Final desktop/mobile confirmation was visually inspected. No horizontal overflow was observed or detected by the final smoke. Source labels, synthetic challenge controls, separate buckets, stored-run attribution and certificate access remain visible. Dense source detail is expandable.
+
+## Independent reviews and fixes
+
+See `S10_REVIEW_REPORT.md`. Fresh-context product and technical reviewers found no release blocker. Product P3 baseline attribution was fixed with “Case context” and explicit absence of a stored buyer statement. Technical P3 prompt-version filtering was fixed and tested; public AI lookup also excludes deliberately synthetic verifier-model records.
+
+Root also found and fixed a run-audit hash defect: the run ID had been added to stored details after hashing. New run/task/override events hash complete canonical JSON, stable after JSONB key reordering. Eight existing preparation runs received append-only attestations; original audit rows were preserved. Unit tests and DB/audit checks cover the correction. No financial certificate or ledger record was changed.
+
+## Branch, PR, CI and release status
+
+Implementation checkpoint: `90e06c7`; final hardening/report checkpoint follows on the same pushed branch `feat/s10-case-workspace`. Compare: https://github.com/recoveryloop-ai/recoveryloop-ai/compare/main...feat/s10-case-workspace .
+
+The GitHub connector rejected PR creation with `403 Resource not accessible by integration`. The owner then said they will create the PR and requested independent reviews/final checks locally; those are complete. No PR URL or PR CI run is claimed. The repository workflow runs on PRs/main, so feature-branch local verification is not a CI pass. The agent did not merge or change main.
+
+Public URL remains https://recoveryloop-ai.vercel.app ; current production version/incognito S10 behavior was not verified or changed. Owner instruction excludes Vercel deployment interaction; the hosting owner controls release, production verification and availability through judging. Registration/eligibility confirmation and YouTube/Devpost publication remain owner-controlled/unverified. Free risk-data integration, actual dispute evidence/submission, live-money and real-customer production readiness remain unpassed or out of scope as documented.
+
+## RESUME / owner handoff
+
+Local implementation, independent reviews and final checks are complete. Open one PR from the pushed S10 branch, run repository CI, and coordinate hosting-owner release/production verification. Preserve the two pre-existing unstaged edits in `handoff-prompts/NEXT_AGENT.md` and `EVIDENCE_LEDGER.md`. No implementation-test failure remains. The default Turbopack build is environment-blocked; the explicit webpack production build passes. No deployment, merge, video upload or Devpost submission was attempted. Never repeat a PayPal write to resume.

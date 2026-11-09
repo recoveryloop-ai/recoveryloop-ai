@@ -43,4 +43,4 @@ S0–S8 remain the accepted release baseline. S9 is a documentation-only handoff
 
 ## S10 — Unified case investigation MVP (9 November 2026)
 
-Authorized by `handoff-prompts/NEXT_AGENT.md`. The complete sprint brief, feature inventory, discovery/scorecard, acceptance gates, ownership, rollback and RESUME checkpoint are in `docs/S10_UNIFIED_MVP_SPRINT.md`. Use one branch and one reviewed PR. S0–S9 history and sandbox financial boundaries remain binding. Status: readiness and discovery in progress; no completion claim.
+Authorized by `handoff-prompts/NEXT_AGENT.md`. The complete sprint brief, feature inventory, discovery/scorecard, acceptance gates, ownership, rollback and RESUME checkpoint are in `docs/S10_UNIFIED_MVP_SPRINT.md`. Use one branch and one reviewed PR. S0–S9 history and sandbox financial boundaries remain binding. Status: implementation, independent local reviews and final local checks complete; owner creates the single PR and coordinates hosting release. No merge/deployment by the agent, per latest owner clarification.
