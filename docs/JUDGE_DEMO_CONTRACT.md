@@ -48,3 +48,11 @@ Judges must be able to **use** RecoveryLoop AI, not watch a static presentation.
 
 ## Release criterion
 The public app is an interactive working application, but public judges only simulate financial actions. The video and operator evidence show real sandbox money-action integration. Never imply a public simulated refund was executed via PayPal.
+
+## v1.1 — S10 case-centered journey and decisions
+
+The case workspace is the primary public journey: `/` → `/app/cases/RG-2048` → affected item, evidence timeline, financial buckets, bounded investigation/work product → inline synthetic challenge → separate `/app/cases/RG-2052/certificate`. Existing navigation routes remain available. Baseline RG-2048 is not the provider-refund certificate case RG-2052.
+
+Per ADR-022, the AI may select one allowlisted **nonfinancial** outcome after scoped read-only investigation. Display model/version, stored versus fresh run, tool log, citations, uncertainty and the server validator result. Public challenges use stored validated work when current or explicit rules-only output; `aiCallMade=false`. They never create durable merchant tasks. Operator runs may record an internal task after server-verified identity, merchant scope and current-evidence validation; overrides are audited. Draft requests/bundles are not sent or submitted. Policy alone supplies money values; completed cash, reservations and hypothetical recoveries stay separate.
+
+Allowlisted synthetic challenges add pending/UNKNOWN refund, damaged/not-as-described, delivered-but-not-received, dispute inquiry and fictional entity-resolution leads. These are not actual PayPal disputes or external fraud records. No real-person accusations or automated remedy denial. Every challenge reads a server projection; reset remains session-scoped. No fresh anonymous inference budget is opened in S10.

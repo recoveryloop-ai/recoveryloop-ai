@@ -92,6 +92,9 @@ try {
       await sql`delete from actions where proposal_id in (select id from proposals where case_id = ${caseRecord.id})`;
       await sql`delete from proposals where case_id = ${caseRecord.id}`;
       await sql`delete from graph_edges where case_id = ${caseRecord.id}`;
+      await sql`delete from casework_tasks where case_id = ${caseRecord.id}`;
+      await sql`delete from casework_runs where case_id = ${caseRecord.id}`;
+      await sql`delete from casework_evidence where case_id = ${caseRecord.id}`;
       await sql`delete from investigations where case_id = ${caseRecord.id}`;
       await sql`delete from evidence where case_id = ${caseRecord.id}`;
       await sql`delete from cases where id = ${caseRecord.id}`;

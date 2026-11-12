@@ -133,3 +133,9 @@ Public CI intentionally has no database or provider secrets. Secret-dependent br
 ## License
 
 Released under the [MIT License](LICENSE). Copyright © 2026 RecoveryLoop AI contributors.
+
+## S10 implementation branch
+
+The item-centered workspace adds bounded nonfinancial AI decisions and cited draft work, with isolated synthetic challenges. The existing money workflow is unchanged. See [S10 sprint](docs/S10_UNIFIED_MVP_SPRINT.md), [operations](docs/S10_OPERATIONS.md), and [implementation evidence](docs/S10_IMPLEMENTATION_REPORT.md). This branch is not proof of a production deployment; the hosting owner controls release.
+
+After the accepted fixtures exist, apply `npm run db:migrate`, then `npx tsx scripts/s10/prepare-casework.ts`. Audit model inputs with `npx tsx scripts/s10/audit-model-payload.ts`. Server-side preparation can generate missing validated scenario runs with `npx tsx scripts/s10/run-casework.ts`; public interactions never call a fresh model. Run `npx tsx scripts/db/verify-s10.ts` for task/audit, RLS, merchant scope and ledger checks. Do not rerun financial write scripts to reproduce this feature.

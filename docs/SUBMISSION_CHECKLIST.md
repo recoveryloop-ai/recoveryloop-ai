@@ -44,3 +44,8 @@
 - Keep the labels `PAYPAL SANDBOX`, `EASYPOST TEST`, `SYNTHETIC SESSION OVERLAY` and `PROVIDER_VERIFIED` visible.
 - Do not claim live funds, recovered carrier cash, automated carrier-claim submission or production merchant usage.
 - Do not show the operator password, `.env.local`, terminal environment output or provider dashboards containing secrets in the video.
+
+
+## S10 implementation addendum — 9 November 2026
+
+The technical checklist above records S8 history; it is not proof that S10 is deployed. S10 implementation and local verification are reported in `S10_IMPLEMENTATION_REPORT.md`. Hosting belongs to another person. The owner instructed the agent to focus on implementation and not interact with Vercel deployment. S10 production release/verification and merge into any automatically deployed branch remain deferred to the hosting owner's workflow. Registration/eligibility and the public YouTube/Devpost URLs are still unverified/open. Do not replace historical checked boxes with an unobserved S10 success claim.

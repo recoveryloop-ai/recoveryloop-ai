@@ -43,3 +43,9 @@ Never paste credentials in chat; keep `.env.local` out of version control and co
 - Old `public read-only demo` replaced with **interactive public judge experience limited to synthetic evidence**.
 - Old `AI provider flexible/unselected` was replaced by OpenAI, then superseded by **Z.ai GLM (`glm-5.3`)** in ADR-015.
 - Old `merchant vertical pending` replaced with **electronics/accessories**.
+
+## ADR-022 — Bounded nonfinancial case work (S10)
+
+Accepted by the owner's S10 handoff on 9 November 2026. Supersedes ADR-018's explanatory-only limit for the versioned `casework-v2` workflow; v1 stored investigations remain readable. Z.ai selects scoped read-only tools and a nonfinancial outcome: REQUEST_EVIDENCE, ROUTE_TO_OPERATOR, MONITOR_PAYMENT, NO_ACTION or READY_FOR_POLICY_REVIEW. Server validation enforces evidence scope/hash, supported issue classification, citations, missing proof, confidence and permitted transitions. No amount, entitlement, provider write or external message is model-controlled.
+
+Validated operator runs may create one idempotent internal follow-up task through a server-owned merchant-scoped gateway, with audit and reversible operator override. Anonymous activity only selects session-isolated synthetic projections and reads cached validated work or explicit rules-only output. No anonymous merchant task creation or canonical mutation. New cases remain synthetic unless actual provider proof exists. ADR-017, ADR-019 and all money/authentication rules remain unchanged.

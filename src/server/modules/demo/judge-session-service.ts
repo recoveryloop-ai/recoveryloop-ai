@@ -7,8 +7,9 @@ export const judgeCookieName = "recoveryloop_judge";
 export const judgeSessionTtlSeconds = 45 * 60;
 export const judgeRequestLimit = 120;
 
-export type DemoScenario = "BASELINE" | "ALREADY_REFUNDED" | "CONTRADICTORY_DELIVERY";
-export const mutableDemoScenarios = ["ALREADY_REFUNDED", "CONTRADICTORY_DELIVERY"] as const;
+import { caseworkScenarios, type CaseworkScenario } from "../casework/contracts";
+export type DemoScenario = CaseworkScenario;
+export const mutableDemoScenarios = caseworkScenarios.filter((scenario): scenario is Exclude<DemoScenario, "BASELINE"> => scenario !== "BASELINE");
 
 export type JudgeSession = {
   id: string;

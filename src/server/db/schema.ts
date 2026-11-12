@@ -446,6 +446,48 @@ export const demoOverlays = pgTable("demo_overlays", {
   uniqueIndex("demo_overlays_session_case_unique").on(table.sessionId, table.caseRef),
   index("demo_overlays_session_expires_idx").on(table.sessionId, table.expiresAt),
   check("demo_overlays_case_allowlist", sql`${table.caseRef} = 'RG-2048'`),
-  check("demo_overlays_scenario_allowlist", sql`${table.scenario} in ('ALREADY_REFUNDED', 'CONTRADICTORY_DELIVERY')`),
+  check("demo_overlays_scenario_allowlist", sql`${table.scenario} in ('ALREADY_REFUNDED', 'CONTRADICTORY_DELIVERY', 'PENDING_REFUND', 'DAMAGED_ITEM', 'NOT_RECEIVED', 'DISPUTE_INQUIRY', 'ENTITY_REVIEW')`),
   check("demo_overlays_evidence_hash_valid", sql`length(${table.evidenceHash}) = 64`),
 ]);
+
+export const caseworkEvidence = pgTable("casework_evidence", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  caseId: uuid("case_id").notNull().references(() => cases.id),
+  scenario: varchar("scenario", { length: 40 }).notNull(),
+  facts: jsonb("facts").notNull(),
+  createdAt,
+}, table => [uniqueIndex("casework_evidence_case_id_scenario_key").on(table.caseId, table.scenario),
+  check("casework_evidence_scenario_check", sql`${table.scenario} in ('ALREADY_REFUNDED','CONTRADICTORY_DELIVERY','PENDING_REFUND','DAMAGED_ITEM','NOT_RECEIVED','DISPUTE_INQUIRY','ENTITY_REVIEW')`)]);
+
+export const caseworkRuns = pgTable("casework_runs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  caseId: uuid("case_id").notNull().references(() => cases.id),
+  scenario: varchar("scenario", { length: 40 }).notNull(),
+  evidenceHash: varchar("evidence_hash", { length: 64 }).notNull(),
+  model: varchar("model", { length: 64 }).notNull(),
+  promptVersion: varchar("prompt_version", { length: 40 }).notNull(),
+  outputJson: jsonb("output_json").notNull(),
+  toolLog: jsonb("tool_log").notNull(),
+  providerResponseHash: varchar("provider_response_hash", { length: 64 }).notNull(),
+  promptTokens: integer("prompt_tokens").notNull(),
+  completionTokens: integer("completion_tokens").notNull(),
+  createdAt,
+}, table => [index("casework_runs_case_scenario_idx").on(table.caseId, table.scenario, table.createdAt.desc()),
+  check("casework_runs_evidence_hash_check", sql`length(${table.evidenceHash}) = 64`)]);
+
+export const caseworkTasks = pgTable("casework_tasks", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  runId: uuid("run_id").notNull().references(() => caseworkRuns.id),
+  caseId: uuid("case_id").notNull().references(() => cases.id),
+  merchantId: uuid("merchant_id").notNull().references(() => merchants.id),
+  outcome: varchar("outcome", { length: 40 }).notNull(),
+  state: varchar("state", { length: 20 }).notNull().default("OPEN"),
+  revision: integer("revision").notNull().default(0),
+  createdBy: uuid("created_by").notNull(),
+  createdAt,
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, table => [uniqueIndex("casework_tasks_run_id_key").on(table.runId),
+  index("casework_tasks_merchant_idx").on(table.merchantId,table.caseId),
+  check("casework_tasks_outcome_check", sql`${table.outcome} in ('REQUEST_EVIDENCE','ROUTE_TO_OPERATOR','MONITOR_PAYMENT','NO_ACTION','READY_FOR_POLICY_REVIEW')`),
+  check("casework_tasks_state_check", sql`${table.state} in ('OPEN','OVERRIDDEN','CLOSED')`),
+  check("casework_tasks_revision_check", sql`${table.revision} >= 0`)]);

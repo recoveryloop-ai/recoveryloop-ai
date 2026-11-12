@@ -119,7 +119,8 @@ export function sanitizeEvidenceFacts(value: unknown): Record<string, unknown> {
   const record = value as Record<string, unknown>;
   const facts: Record<string, unknown> = {};
   for (const key of ["status", "statusDetail", "event", "fixture", "source", "mode", "currency", "version"] as const) {
-    if (typeof record[key] === "string") facts[key] = sanitizeUntrustedText(record[key]);
+    const value = record[key];
+    if (typeof value === "string") facts[key] = sanitizeUntrustedText(value);
   }
   for (const key of ["amountMinor", "itemCount"] as const) {
     if (typeof record[key] === "number" && Number.isSafeInteger(record[key])) facts[key] = record[key];
@@ -157,7 +158,7 @@ export async function loadInvestigationContext(databaseUrl: string, caseRef: str
       where cs.external_ref = ${caseRef}`;
     if (!root) throw new AppError("CASE_NOT_FOUND", 404);
 
-    const items = await client<{
+    const itemsPromise = client<{
       id: string;
       sku: string;
       name: string;
@@ -168,7 +169,7 @@ export async function loadInvestigationContext(databaseUrl: string, caseRef: str
       fulfillment_status: string;
     }[]>`select id, sku, name, quantity, unit_minor, tax_minor, shipping_allocation_minor, fulfillment_status
       from order_items where order_id = ${root.order_id} order by sku`;
-    const captures = await client<{
+    const capturesPromise = client<{
       id: string;
       provider: string;
       status: string;
@@ -177,7 +178,7 @@ export async function loadInvestigationContext(databaseUrl: string, caseRef: str
       verified_at: Date | string | null;
     }[]>`select id, provider, status, captured_minor, currency, verified_at
       from captures where order_id = ${root.order_id} order by id`;
-    const refunds = await client<{
+    const refundsPromise = client<{
       id: string;
       capture_id: string;
       status: string;
@@ -187,7 +188,7 @@ export async function loadInvestigationContext(databaseUrl: string, caseRef: str
     }[]>`select r.id, r.capture_id, r.status, r.amount_minor, r.currency, r.verified_at
       from refunds r join captures c on c.id = r.capture_id
       where c.order_id = ${root.order_id} order by r.id`;
-    const shipmentRows = await client<{
+    const shipmentRowsPromise = client<{
       shipment_id: string;
       provider: string;
       shipment_status: string;
@@ -206,7 +207,7 @@ export async function loadInvestigationContext(databaseUrl: string, caseRef: str
         se.source_tier as event_source_tier, se.synthetic_flag as event_synthetic
       from shipments s left join shipment_events se on se.shipment_id = s.id
       where s.order_id = ${root.order_id} order by s.id, se.observed_at`;
-    const evidenceRows = await client<{
+    const evidenceRowsPromise = client<{
       id: string;
       provider: string;
       source_tier: string;
@@ -215,6 +216,10 @@ export async function loadInvestigationContext(databaseUrl: string, caseRef: str
       redacted_json: unknown;
     }[]>`select id, provider, source_tier, observed_at, payload_hash, redacted_json
       from evidence where case_id = ${root.case_id} order by id`;
+    const [items, captures, refunds, shipmentRows, evidenceRows, obligation] = await Promise.all([
+      itemsPromise, capturesPromise, refundsPromise, shipmentRowsPromise, evidenceRowsPromise,
+      readCaseObligation(databaseUrl, caseRef),
+    ]);
     if (evidenceRows.length === 0) throw new AppError("CASE_EVIDENCE_NOT_FOUND", 409);
 
     const shipmentMap = new Map<string, InvestigationContext["shipments"][number] & { events: Array<InvestigationContext["shipments"][number]["events"][number]> }>();
@@ -252,7 +257,6 @@ export async function loadInvestigationContext(databaseUrl: string, caseRef: str
       payloadHash: row.payload_hash,
       facts: sanitizeEvidenceFacts(row.redacted_json),
     }));
-    const obligation = await readCaseObligation(databaseUrl, caseRef);
 
     return {
       case: {
